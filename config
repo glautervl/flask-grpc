@@ -1,0 +1,24 @@
+[network.kovan]
+default_eth_rpc_endpoint = https://kovan.infura.io
+
+[network.mainnet]
+default_eth_rpc_endpoint = https://mainnet.infura.io
+
+[network.ropsten]
+default_eth_rpc_endpoint = https://ropsten.infura.io
+
+[network.rinkeby]
+default_eth_rpc_endpoint = https://rinkeby.infura.io
+
+[ipfs]
+default_ipfs_endpoint = http://ipfs.singularitynet.io:80
+
+[session]
+default_gas_price = 100000000
+default_wallet_index = 0
+default_eth_rpc_endpoint = https://kovan.infura.io
+identity_name = ARTUR_ID
+
+[identity.ARTUR_ID]
+identity_type = key
+private_key = 0E30D117C94505B6DD6AD7B1079B87B3AD5ED0E8457837055F382E8B8163E013
