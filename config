@@ -18,7 +18,10 @@ default_gas_price = 100000000
 default_wallet_index = 0
 default_eth_rpc_endpoint = https://kovan.infura.io
 identity_name = ARTUR_ID
+current_agent_at = 0x1E89D9ed5bCC22F934AF631CdA771019081E57B2
+current_job_at = 0x724137B1920ed9ac4B755995cf121B98580d850D
 
 [identity.ARTUR_ID]
 identity_type = key
 private_key = 0E30D117C94505B6DD6AD7B1079B87B3AD5ED0E8457837055F382E8B8163E013
+
