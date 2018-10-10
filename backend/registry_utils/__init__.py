@@ -1,14 +1,28 @@
+import sys
+import os
 import json
+import hashlib
+from pathlib import Path
 
-from organization_util import get_organization_list, get_organization_list_services
-from service_utils import get_service_registration, get_service_endpoint, get_descriptor, call, call_daemon
+from organization_utils import get_organization_list, get_organization_list_services
+from service_utils import get_service_registration, get_service_endpoint, get_descriptor
 from proto_utils import get_proto_file
 
 
-def get_registry_info(iblockchain):
+registry_folder = Path(__file__).absolute().parent.parent
+registry_folder = registry_folder.joinpath("registry")
+
+
+def get_registry_info(iblockchain, out_f=None):
+    tmp_stdout = tmp_stderr = None
+    if out_f is not None:
+        tmp_stdout, tmp_stderr = sys.stdout, sys.stderr
+        sys.stdout = out_f
+        sys.stderr = out_f
+
+    organizations_json = {}
     org_list = get_organization_list(iblockchain)
     if org_list:
-        organizations_json = {}
         for idx, organization in enumerate(org_list):
             org = organization.partition(b"\0")[0].decode("utf-8")
             organizations_json[org] = {}
@@ -34,7 +48,17 @@ def get_registry_info(iblockchain):
                     organizations_json[org][srv]["metadata_uri"].append(metadata_uri)
                     (service_spec, _, _, _, _) = get_descriptor(spec_hash)
                     organizations_json[org][srv]["service_spec"] = service_spec
-        return organizations_json
-    else:
-        print("No Organization found!")
-        return None
+
+        for file in os.listdir(registry_folder):
+            if file.endswith(".json"):
+                os.remove(str(registry_folder.joinpath(file)))
+
+        filename = hashlib.sha256(json.dumps(organizations_json, sort_keys=True).encode('utf-8')).hexdigest()
+        filename = str(registry_folder.joinpath(filename)) + ".json"
+        with open(filename, 'w') as outfile:
+            json.dump(organizations_json, outfile)
+
+    if None not in [tmp_stdout, tmp_stderr]:
+        sys.stdout = tmp_stdout
+        sys.stderr = tmp_stderr
+    return organizations_json

@@ -98,20 +98,18 @@ def get_descriptor(spec_hash, method=None):
                             request_name = m_desc.input_type.name
                         services_json[s_name]["request"] = {}
                         services_json[s_name]["request"][m_desc.input_type.name] = {}
-                        services_json[s_name]["request"][m_desc.input_type.name]["param"] = {}
+                        services_json[s_name]["request"][m_desc.input_type.name]["params"] = {}
                         for idx, field in enumerate(m_desc.input_type.fields):
-                            services_json[s_name]["request"][m_desc.input_type.name]["param"][field.name] = {}
-                            services_json[s_name]["request"][m_desc.input_type.name]["param"][field.name]["type"] = field.type
-                            services_json[s_name]["request"][m_desc.input_type.name]["param"][field.name]["name"] = field.name
+                            services_json[s_name]["request"][m_desc.input_type.name]["params"][field.name] = {}
+                            services_json[s_name]["request"][m_desc.input_type.name]["params"][field.name]["type"] = field.type
                         if not method_found:
                             response_name = m_desc.output_type.name
                         services_json[s_name]["response"] = {}
                         services_json[s_name]["response"][m_desc.output_type.name] = {}
-                        services_json[s_name]["response"][m_desc.output_type.name]["param"] = {}
+                        services_json[s_name]["response"][m_desc.output_type.name]["params"] = {}
                         for idx, field in enumerate(m_desc.output_type.fields):
-                            services_json[s_name]["response"][m_desc.output_type.name]["param"][field.name] = {}
-                            services_json[s_name]["response"][m_desc.output_type.name]["param"][field.name]["type"] = field.type
-                            services_json[s_name]["response"][m_desc.output_type.name]["param"][field.name]["name"] = field.name
+                            services_json[s_name]["response"][m_desc.output_type.name]["params"][field.name] = {}
+                            services_json[s_name]["response"][m_desc.output_type.name]["params"][field.name]["type"] = field.type
                         if m_desc.name == method:
                             service_name = s_name
                             request_name = m_desc.input_type.name

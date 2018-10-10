@@ -1,12 +1,13 @@
 import grpc
 import json
 import traceback
-from proto_utils import get_descriptor
 from google.protobuf import json_format
 from io import StringIO
 
 from snet_cli.commands import ContractCommand, ClientCommand
 from snet_cli.utils import get_contract_def
+
+from proto_utils import get_descriptor
 
 
 def get_service_registration(iblockchain):
