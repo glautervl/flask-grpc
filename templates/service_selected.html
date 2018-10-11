@@ -31,37 +31,35 @@
                   {% for service_k, service_v in service_info.items() %}
                     {% if service_k == 'service_spec' %}
                         {% for k1, v1 in service_v.items() %}
+                                <form action = "response" method = "POST">
                                     <table>
                                     {% for k2, v2 in v1.items() %}
                                         {% if k2 == 'method' %}
                                           <tr>
                                               <th>Method:</th>
-                                              <td>{{ v2 }}</td>
+                                              <td>{{ v2 }}<input type="hidden" name="method" value={{ v2 }} ></td>
                                           </tr>
                                         {% endif %}
                                         {% if k2 == 'request' %}
                                             {% for k3, v3 in v2.items() %}
                                                 {% for k4, v4 in v3.items() %}
                                                     {% if k4 == 'params' %}
-                                                        <tr>
-                                                            <th>Params:</th>
-                                                            <td>
-                                                            {% for k5, v5 in v4.items() %}
-                                                                {{ k5 }}
-                                                            {% endfor %}
-                                                            </td>
-                                                        </tr>
+                                                        {% for k5, v5 in v4.items() %}
+                                                            <tr>
+                                                                <th>{{ k5 }}:</th>
+                                                                <td><input type="text" name="params#{{ k5 }}" /></td>
+                                                            </tr>
+                                                        {% endfor %}
                                                     {% endif %}
                                                 {% endfor %}
                                             {% endfor %}
                                         {% endif %}
                                     {% endfor %}
+                                    <input type="hidden" name="org" value={{ org_name }} >
+                                    <input type="hidden" name="service" value={{ service_name }} >
                                     </table>
-                                    {% for k2, v2 in v1.items() %}
-                                        {% if k2 == 'method' %}
-                                            <br><button class="{{v2}}.selectService">Select</button><br><br>
-                                        {% endif %}
-                                    {% endfor %}
+                                    <p><input type="submit" value="Submit" /></p>
+                                </form>
                         {% endfor %}
                     {% endif %}
                   {% endfor %}

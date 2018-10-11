@@ -2,6 +2,7 @@ from flask import Flask, render_template, request
 
 import sys
 import json
+from threading import Thread
 from pathlib import Path
 app_folder = Path(__file__).absolute().parent
 sys.path.append(str(app_folder.joinpath("backend")))
@@ -59,7 +60,6 @@ def index():
         len_orgs = len(orgs)
         for k, v in orgs.items():
             len_services += len(v)
-        # print(json.dumps(mem.organizations_dict, sort_keys=True, indent=4))
         return render_template("index.html",
                                orgs=orgs,
                                len_orgs=len_orgs,
@@ -70,7 +70,7 @@ def index():
 
 @app.route('/reload')
 def reload():
-    start_registry_cli()
+    update_organization_dict()
     len_orgs = len(mem.organizations_dict)
     len_services = 0
     for _, services in mem.organizations_dict.items():
@@ -106,10 +106,17 @@ def response():
                 params[param] = v
         agent_address = get_agent_address(org_name, service_name)
         res = request.form
-        print("agent_address: ", agent_address)
-        print("method: ", method)
-        print("params: ", json.dumps(params))
-        service_response = call_service(agent_address, method, json.dumps(params))
+        service_response = None
+        while not service_response:
+            print("agent_address: ", agent_address)
+            print("method: ", method)
+            print("params: ", json.dumps(params))
+            try:
+                service_response = call_service(agent_address, method, json.dumps(params))
+            except Exception as e:
+                print(e)
+                service_response = call_service(agent_address, method, json.dumps(params))
+                break
         return render_template("response.html",
                                org_name=org_name,
                                service_name=service_name,
@@ -118,4 +125,13 @@ def response():
 
 
 if __name__ == "__main__":
-    app.run(debug=True, host='127.0.0.1', port=7001, use_reloader=False, passthrough_errors=True)
+    try:
+        mem.keep_running = True
+        th_registry = Thread(target=start_registry_cli, args=())
+        th_registry.daemon = True
+        th_registry.start()
+
+        app.run(debug=True, host='127.0.0.1', port=7001, use_reloader=False, passthrough_errors=True)
+    except Exception as e:
+        print(e)
+        mem.keep_running = False

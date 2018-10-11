@@ -1,0 +1,22 @@
+const agentAbi = [
+        {"constant":true,"inputs":[],"name":"metadataURI","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},
+        {"constant":true,"inputs":[],"name":"endpoint","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},
+        {"constant":true,"inputs":[],"name":"owner","outputs":[{"name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},
+        {"constant":true,"inputs":[{"name":"","type":"address"}],"name":"createdJobs","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"view","type":"function"},
+        {"constant":true,"inputs":[],"name":"currentPrice","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},
+        {"constant":true,"inputs":[],"name":"state","outputs":[{"name":"","type":"uint8"}],"payable":false,"stateMutability":"view","type":"function"},
+        {"constant":true,"inputs":[],"name":"token","outputs":[{"name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},
+        {"inputs":[{"name":"_token","type":"address"},{"name":"_currentPrice","type":"uint256"},{"name":"_endpoint","type":"string"},{"name":"_metadataURI","type":"string"}],"payable":false,"stateMutability":"nonpayable","type":"constructor"},
+        {"anonymous":false,"inputs":[{"indexed":false,"name":"job","type":"address"},{"indexed":false,"name":"consumer","type":"address"},{"indexed":false,"name":"jobPrice","type":"uint256"}],"name":"JobCreated","type":"event"},
+        {"anonymous":false,"inputs":[{"indexed":false,"name":"job","type":"address"}],"name":"JobFunded","type":"event"},
+        {"anonymous":false,"inputs":[{"indexed":false,"name":"job","type":"address"}],"name":"JobCompleted","type":"event"},
+        {"constant":false,"inputs":[{"name":"_currentPrice","type":"uint256"}],"name":"setPrice","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},
+        {"constant":false,"inputs":[{"name":"_endpoint","type":"string"}],"name":"setEndpoint","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},
+        {"constant":false,"inputs":[{"name":"_metadataURI","type":"string"}],"name":"setMetadataURI","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},
+        {"constant":false,"inputs":[],"name":"disable","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},
+        {"constant":false,"inputs":[],"name":"enable","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},
+        {"constant":false,"inputs":[],"name":"createJob","outputs":[{"name":"","type":"address"},{"name":"","type":"uint256"}],"payable":false,"stateMutability":"nonpayable","type":"function"},
+        {"constant":false,"inputs":[],"name":"fundJob","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},
+        {"constant":true,"inputs":[{"name":"job","type":"address"},{"name":"v","type":"uint8"},{"name":"r","type":"bytes32"},{"name":"s","type":"bytes32"}],"name":"validateJobInvocation","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"view","type":"function"},
+        {"constant":false,"inputs":[{"name":"job","type":"address"},{"name":"v","type":"uint8"},{"name":"r","type":"bytes32"},{"name":"s","type":"bytes32"}],"name":"completeJob","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"}
+    ];

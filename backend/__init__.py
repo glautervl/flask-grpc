@@ -1,11 +1,11 @@
 import os
 import sys
+import time
 import subprocess
 import web3
 import json
 import hashlib
 from pathlib import Path
-from threading import Thread
 from configparser import ConfigParser, ExtendedInterpolation
 
 from snet_cli.commands import BlockchainCommand
@@ -23,6 +23,7 @@ class MemSingleton:
         self.registry_cli = "registry_cli.py"
         self.services_json_file = ""
         self.organizations_dict = {}
+        self.keep_running = False
 
 
 mem = MemSingleton()
@@ -68,7 +69,6 @@ def get_conf():
         conf_path = backend_path.joinpath("config")
         with open(conf_path, "r") as f:
             conf.read_file(f)
-            print(conf)
     except Exception as e:
         print(e)
         conf = {
@@ -115,15 +115,12 @@ def insert_package(spec_dir, spec_hash):
             f.writelines(filelines)
 
 
-def registry_thread():
-    subprocess.Popen([sys.executable, mem.registry_cli], cwd=backend_path)
-
-
 def start_registry_cli():
-    print("Calling RegistryCLI...")
-    th_registry = Thread(target=registry_thread, args=())
-    th_registry.daemon = True
-    th_registry.start()
+    while mem.keep_running:
+        print("Updating with registry-cli...")
+        p = subprocess.Popen([sys.executable, mem.registry_cli], cwd=backend_path)
+        p.wait()
+        time.sleep(5)
 
 
 def update_organization_dict():
@@ -149,8 +146,6 @@ def call_service(agent_address, method, params):
     args = CustomArgs()
     get_conf()
     iblockchain = BlockchainCommand(conf, args)
-    start_registry_cli()
-
     iblockchain.args.agent_at = agent_address
     iblockchain.args.method = method
     iblockchain.args.params = params
