@@ -1,3 +1,14 @@
+window.user_account =  $(".consumer").text();
+window.jobAddress = $(".jobAddress").text();
+window.jobPrice = $(".jobPrice").text();
+window.job_contract = window.web3.eth.contract(jobAbi).at(window.jobAddress);
+window.token_contract = window.web3.eth.contract(tokenAbi).at('0x3b226ff6aad7851d3263e53cb7688d13a07f6e81');
+window.tokenAddress = "0x3b226ff6aad7851d3263e53cb7688d13a07f6e81";
+window.receipt = null;
+window.blockNumber = 'latest';
+window.transactionHash = "";
+window.consumer = "";
+
 function waitForReceipt(hash, cb) {
   window.web3.eth.getTransactionReceipt(hash, function (err, receipt) {
     if (err) {
@@ -17,10 +28,12 @@ function waitForReceipt(hash, cb) {
   });
 }
 
-const approveTokens = (user_account, agent) => {
+const approveTokens = (contract) => {
     return new Promise((resolve, reject) => {
-        agent.fundJob(
-            {from: user_account},
+        contract.approve(
+            window.jobAddress,
+            parseInt(window.jobPrice),
+            {from: window.user_account},
             (error, hash) => {
                 if (!error) {
                     console.log('Transaction sent');
@@ -50,18 +63,19 @@ const isMainNetwork = () => {
 
 isMainNetwork()
     .then(() => {
-        let user_account = get_user_account();
-        let agent = window.web3.eth.contract(agentAbi).at('0x333aCC524483853A4aDf4c9ccF4FE28801B5D43a');
         document.getElementById("fundJob").disabled = true;
         document.getElementById("fundJob").value = "Please, wait...";
-        return approveTokens(user_account, agent);
+        console.log("jobAddress: ", window.jobAddress);
+        console.log("jobPrice: ", window.jobPrice);
+        console.log("user_account: ", window.user_account);
+        return approveTokens(window.token_contract);
     })
     .then((hash) => {
+        console.log("hash: ", hash);
         return waitForReceipt(hash, function (receipt) {
             console.log(receipt);
             $.post( "/get_receipt", { receipt });
-            document.getElementById("fundJob").value = "FundJob";
-            document.getElementById("fundJob").disabled = false;
+            return approveTokens(window.token_contract); // <<<======== HERE!
         });
     })
     .then((receipt) => {

@@ -184,23 +184,12 @@ def approve_tokens():
         method_info = tmp_method_info
         approve_tokens_version = randint(1234, 1234567)
 
-        while not mem.receipt:
-            time.sleep(1)
-
-        while not mem.events:
-            time.sleep(1)
-
-        receipt = mem.receipt
-        mem.receipt = ""
-        events = mem.events
-        mem.events = ""
-
         print("[approveTokens] method_info: ", method_info)
 
         return render_template("approveTokens.html",
                                approve_tokens_version=approve_tokens_version,
-                               receipt=receipt,
-                               events=events,
+                               receipt=mem.receipt,
+                               events=mem.events,
                                org_name=org_name,
                                service_name=service_name,
                                method=method,
@@ -228,23 +217,12 @@ def fund_job():
         method_info = tmp_method_info
         fund_job_version = randint(1234, 1234567)
 
-        while not mem.receipt:
-            time.sleep(1)
-
-        while not mem.events:
-            time.sleep(1)
-
-        receipt = mem.receipt
-        mem.receipt = ""
-        events = mem.events
-        mem.events = ""
-
         print("[fund_job] method_info: ", method_info)
 
         return render_template("fundJob.html",
                                fund_job_version=fund_job_version,
-                               receipt=receipt,
-                               events=events,
+                               receipt=mem.receipt,
+                               events=mem.events,
                                org_name=org_name,
                                service_name=service_name,
                                method=method,

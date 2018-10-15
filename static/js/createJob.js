@@ -1,10 +1,11 @@
-var agent = window.web3.eth.contract(agentAbi).at('0x333aCC524483853A4aDf4c9ccF4FE28801B5D43a');
-var receipt = null;
-var blockNumber = 'latest';
-var transactionHash = "";
-var consumer = "";
-var jobAddress = "";
-var jobPrice = "";
+window.user_account = get_user_account();
+window.agent = window.web3.eth.contract(agentAbi).at('0x333aCC524483853A4aDf4c9ccF4FE28801B5D43a');
+window.receipt = null;
+window.blockNumber = 'latest';
+window.transactionHash = "";
+window.consumer = "";
+window.jobAddress = "";
+window.jobPrice = "";
 
 function waitForReceipt(hash, cb) {
   window.web3.eth.getTransactionReceipt(hash, function (err, receipt) {
@@ -26,6 +27,7 @@ function waitForReceipt(hash, cb) {
 }
 
 function waitForEvent(contract, cb){
+    if(blockNumber === null) blockNumber = 'latest';
     var event = contract.JobCreated({}, { fromBlock: blockNumber, toBlock: 'latest' }).get((err, eventResult) => {
         if (err) {
           console.log(err);
@@ -76,7 +78,6 @@ const isMainNetwork = () => {
 
 isMainNetwork()
     .then(() => {
-        let user_account = get_user_account();
         document.getElementById("approveTokens").disabled = true;
         document.getElementById("approveTokens").value = "Please, wait...";
         return createJob(user_account, agent);
@@ -86,8 +87,8 @@ isMainNetwork()
         return waitForReceipt(hash, function (receipt) {
             console.log("blockNumber: ", receipt["blockNumber"]);
             console.log("transactionHash: ", receipt["transactionHash"]);
-            blockNumber = receipt["blockNumber"];
-            transactionHash = receipt["transactionHash"];
+            window.blockNumber = receipt["blockNumber"];
+            window.transactionHash = receipt["transactionHash"];
             $.post("/get_receipt", { receipt });
         });
     })
@@ -96,21 +97,21 @@ isMainNetwork()
             console.log("eventResult:", eventResult);
             var last_event = eventResult[eventResult.length-1];
             if(last_event) {
-                if(transactionHash === last_event["transactionHash"]) {
-                    console.log("consumer: ", last_event["args"]["consumer"]);
-                    consumer = last_event["args"]["consumer"];
-                    jobAddress = last_event["args"]["job"];
-                    console.log("jobAddress: ", jobAddress);
-                    jobPrice = last_event["args"]["jobPrice"]["c"][0] / (10 ** 8);
-                    console.log("jobPrice: ", jobPrice);
+                if(window.transactionHash === last_event["transactionHash"]) {
+                    window.consumer = last_event["args"]["consumer"];
+                    console.log("consumer: ", window.consumer);
+                    window.jobAddress = last_event["args"]["job"];
+                    console.log("jobAddress: ", window.jobAddress);
+                    window.jobPrice = last_event["args"]["jobPrice"]["c"][0];
+                    console.log("jobPrice: ", window.jobPrice);
                     document.getElementById("approveTokens").value = "ApproveTokens";
                     document.getElementById("approveTokens").disabled = false;
                     $.post("/get_events", {
-                        blockNumber: blockNumber,
-                        transactionHash: transactionHash,
-                        consumer: consumer,
-                        jobAddress: jobAddress,
-                        jobPrice: jobPrice
+                        blockNumber: window.blockNumber,
+                        transactionHash: window.transactionHash,
+                        consumer: window.consumer,
+                        jobAddress: window.jobAddress,
+                        jobPrice: window.jobPrice
                     });
                 }
             }

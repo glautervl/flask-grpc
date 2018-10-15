@@ -56,12 +56,13 @@
                     <table>
                         {% for key, value in events.items() %}
                             <tr>
-                                <th> {{ key }} </th>
-                                <td> {{ value }} </td>
+                                <th>{{ key }}</th>
+                                <td><span class="{{ key }}">{{ value }}</span></td>
                             </tr>
                         {% endfor %}
                     </table>
                 </ul>
+                <br><br>
                 <ul class="nav nav-stacked">
                     <table>
                         {% for key, value in receipt.items() %}
