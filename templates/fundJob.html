@@ -1,0 +1,86 @@
+{% extends "layout.html" %}
+{% block title %}{{ service_name }}{% endblock %}
+{% block content %}
+<div class="row">
+    <div class="col-lg-12">
+      <!-- Widget: user widget style 1 -->
+      <div class="box box-widget widget-user-2">
+        <!-- Add the bg color to the header using any of the bg-* classes -->
+        <div class="widget-user-header bg-purple">
+          <div class="widget-user-image">
+            <img class="img-circle" src="{{ url_for('static', filename='img/user7-128x128.jpg') }}" alt="User Avatar">
+          </div>
+          <!-- /.widget-user-image -->
+          <h3 class="widget-user-username">{{ org_name }}</h3>
+          <h5 class="widget-user-desc">{{ service_name }}</h5>
+        </div>
+        <div class="box-footer no-padding">
+          <ul class="nav nav-stacked">
+            <form action = "callService" method = "POST">
+                <table>
+                    <tr>
+                      <th>Method:</th>
+                      <td>{{ method }}<input type="hidden" name="method" value={{ method }} ></td>
+                    </tr>
+                    {% for method_t in method_info %}
+                    <tr>
+                        <th>[{{ method_t[0] }}] {{ method_t[1] }}:</th>
+                        <td><input type="text" name="params#{{ method_t[1] }}" value="{{method_t[3]}}" /></td>
+                    </tr>
+                    {% endfor %}
+                </table>
+                <p><input type="submit" value="CallService" id="callService" /></p>
+            </form>
+          </ul>
+        </div>
+      </div>
+    </div>
+</div>
+<li><a href="/">Voltar</a></li>
+
+<div class="row">
+    <div class="col-lg-12">
+      <!-- Widget: user widget style 1 -->
+      <div class="box box-widget widget-user-2">
+        <!-- Add the bg color to the header using any of the bg-* classes -->
+        <div class="widget-user-header bg-purple">
+            <div class="widget-user-image">
+                <img class="img-circle" src="{{ url_for('static', filename='img/user7-128x128.jpg') }}" alt="User Avatar">
+            </div>
+            <h3 class="widget-user-username">Job Created!</h3>
+            <h5 class="widget-user-desc">Transaction Receipt:</h5>
+        </div>
+        <div class="box-footer no-padding">
+            <div class="box-footer no-padding">
+                <ul class="nav nav-stacked">
+                    <table>
+                        {% for key, value in receipt.items() %}
+                            <tr>
+                                <th> {{ key }} </th>
+                                <td> {{ value }} </td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                </ul>
+                <ul class="nav nav-stacked">
+                    <table>
+                        {% for key, value in events.items() %}
+                            <tr>
+                                <th> {{ key }} </th>
+                                <td> {{ value }} </td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                </ul>
+            </div>
+        </div>
+      </div>
+    </div>
+</div>
+
+<li><a href="/">Voltar</a></li>
+{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript" src="static/js/fundJob.js?ver={{fund_job_version}}"></script>
+{% endblock %}

@@ -25,6 +25,10 @@ class MemSingleton:
         self.organizations_dict = {}
         self.keep_running = False
 
+        # Transactions variables
+        self.receipt = {}
+        self.events = {}
+
 
 mem = MemSingleton()
 

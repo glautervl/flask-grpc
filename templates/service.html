@@ -47,7 +47,7 @@
                                                             <th>Params:</th>
                                                             <td>
                                                             {% for k5, v5 in v4.items() %}
-                                                                {{ k5 }}
+                                                                {{ k5 }},
                                                             {% endfor %}
                                                             </td>
                                                         </tr>
@@ -59,7 +59,12 @@
                                     </table>
                                     {% for k2, v2 in v1.items() %}
                                         {% if k2 == 'method' %}
-                                            <br><button class="{{v2}}.selectService">Select</button><br><br>
+                                          <form action = "selected_service" method = "POST">
+                                              <input type="hidden" name="org" value={{ org_name }} >
+                                              <input type="hidden" name="service" value={{ service_name }} >
+                                              <input type="hidden" name="method" value={{ v2 }} >
+                                              <input type="submit" value="Submit" />
+                                          </form>
                                         {% endif %}
                                     {% endfor %}
                         {% endfor %}

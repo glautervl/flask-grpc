@@ -19,7 +19,7 @@ default_wallet_index = 0
 default_eth_rpc_endpoint = https://kovan.infura.io
 identity_name = ARTUR_ID
 current_agent_at = 0x333aCC524483853A4aDf4c9ccF4FE28801B5D43a
-current_job_at = 0x3776BF12f95F27E06696495aB466C07158489955
+current_job_at = 0x96a135D57eB619161EA03fC1adD1322760D001f8
 
 [identity.ARTUR_ID]
 identity_type = key

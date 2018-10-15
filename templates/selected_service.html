@@ -1,0 +1,42 @@
+{% extends "layout.html" %}
+{% block title %}{{ service_name }}{% endblock %}
+{% block content %}
+<div class="row">
+    <div class="col-lg-12">
+      <!-- Widget: user widget style 1 -->
+      <div class="box box-widget widget-user-2">
+        <!-- Add the bg color to the header using any of the bg-* classes -->
+        <div class="widget-user-header bg-purple">
+          <div class="widget-user-image">
+            <img class="img-circle" src="{{ url_for('static', filename='img/user7-128x128.jpg') }}" alt="User Avatar">
+          </div>
+          <!-- /.widget-user-image -->
+          <h3 class="widget-user-username">{{ org_name }}</h3>
+          <h5 class="widget-user-desc">{{ service_name }}</h5>
+        </div>
+        <div class="box-footer no-padding">
+          <ul class="nav nav-stacked">
+              <form action="createJob" method="POST">
+                <table>
+                    <tr>
+                      <th>Method:</th>
+                      <td>{{ method }}<input type="hidden" name="method" value={{ method }} ></td>
+                    </tr>
+                    {% for method_t in method_info %}
+                    <tr>
+                        <th>[{{ method_t[0] }}] {{ method_t[1] }}:</th>
+                        <td><input type="text" name="params#{{ method_t[1] }}" /></td>
+                    </tr>
+                    {% endfor %}
+                </table>
+                <input type="hidden" name="org" value={{ org_name }} >
+                <input type="hidden" name="service" value={{ service_name }} >
+                <p><input type="submit" value="Create Job" /></p>
+              </form>
+          </ul>
+        </div>
+      </div>
+    </div>
+</div>
+<li><a href="/">Voltar</a></li>
+{% endblock %}
