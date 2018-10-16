@@ -1,5 +1,3 @@
-window.user_account = get_user_account();
-window.agent = window.web3.eth.contract(agentAbi).at('0x333aCC524483853A4aDf4c9ccF4FE28801B5D43a');
 window.receipt = null;
 window.blockNumber = 'latest';
 window.transactionHash = "";
@@ -13,22 +11,28 @@ function waitForReceipt(hash, cb) {
       error(err);
     }
     if (receipt !== null) {
-      // Transaction went through
-      if (cb) {
-        cb(receipt);
-      }
+        if(receipt["blockNumber"] !== null) {
+            // Transaction went through
+            if (cb) {
+                cb(receipt);
+            }
+        } else {
+            window.setTimeout(function () {
+                waitForReceipt(hash, cb);
+            }, 1000);
+        }
     } else {
-      // Try again in 1 second
-      setTimeout(function () {
-        waitForReceipt(hash, cb);
-      }, 1000);
+        window.setTimeout(function () {
+            waitForReceipt(hash, cb);
+        }, 1000);
     }
+
   });
 }
 
 function waitForEvent(contract, cb){
-    if(blockNumber === null) blockNumber = 'latest';
-    var event = contract.JobCreated({}, { fromBlock: blockNumber, toBlock: 'latest' }).get((err, eventResult) => {
+    if(window.blockNumber === null) window.blockNumber = 'latest';
+    var event = contract.JobCreated({}, { fromBlock: window.blockNumber, toBlock: 'latest' }).get((err, eventResult) => {
         if (err) {
           console.log(err);
         }
@@ -45,13 +49,13 @@ function waitForEvent(contract, cb){
     });
 }
 
-const createJob = (user_account, agent) => {
+const createJob = (contract) => {
     return new Promise((resolve, reject) => {
-        agent.createJob(
-            {from: user_account},
+        contract.createJob(
+            {from: window.user_account},
             (error, hash) => {
                 if (!error) {
-                    console.log('Transaction sent');
+                    console.log('Creating Job...');
                     console.dir(hash);
                     resolve(hash);
                 }
@@ -80,7 +84,11 @@ isMainNetwork()
     .then(() => {
         document.getElementById("approveTokens").disabled = true;
         document.getElementById("approveTokens").value = "Please, wait...";
-        return createJob(user_account, agent);
+        window.agent_address =  document.getElementById("agent_address").value;
+        window.agent = window.web3.eth.contract(agentAbi).at(window.agent_address);
+        window.user_account =  document.getElementById("user_address").textContent;
+        console.log("user_account: ", window.user_account);
+        return createJob(agent);
     })
     .then((hash) => {
         console.log("hash:", hash);
@@ -94,7 +102,7 @@ isMainNetwork()
     })
     .then((receipt) => {
         return waitForEvent(agent, function (eventResult) {
-            console.log("eventResult:", eventResult);
+            console.log("[createJob] eventResult:", eventResult);
             var last_event = eventResult[eventResult.length-1];
             if(last_event) {
                 if(window.transactionHash === last_event["transactionHash"]) {
@@ -119,8 +127,5 @@ isMainNetwork()
                 document.getElementById("approveTokens").value = "JobFail!";
             }
         });
-    })
-    .then((eventResult) => {
-        console.log("eventResult:", eventResult);
     })
     .catch(console.error);

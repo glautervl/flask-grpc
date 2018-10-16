@@ -8,9 +8,10 @@ import hashlib
 from pathlib import Path
 from configparser import ConfigParser, ExtendedInterpolation
 
+from snet_cli.utils import get_web3, get_agent_version
 from snet_cli.commands import BlockchainCommand
 
-from service_utils import call, call_daemon
+from service_utils import call, call_daemon_static
 
 
 conf = ConfigParser(interpolation=ExtendedInterpolation(), delimiters=("=",))
@@ -24,6 +25,15 @@ class MemSingleton:
         self.services_json_file = ""
         self.organizations_dict = {}
         self.keep_running = False
+
+        # Job Invocation
+        self.endpoint = ""
+        self.spec_hash = ""
+        self.user_account = ""
+        self.agent_address = ""
+        self.job_address = ""
+        self.job_price = 0
+        self.job_signature = ""
 
         # Transactions variables
         self.receipt = {}
@@ -146,15 +156,25 @@ def update_organization_dict():
     return found
 
 
-def call_service(agent_address, method, params):
+def call_api(job_address, job_signature, endpoint, spec_hash, method, params):
+    response = call(job_address, job_signature, endpoint, spec_hash, method, params)
+    return response
+
+
+def call_service_static(agent_address, method, params):
     args = CustomArgs()
     get_conf()
     iblockchain = BlockchainCommand(conf, args)
     iblockchain.args.agent_at = agent_address
     iblockchain.args.method = method
     iblockchain.args.params = params
-    response = call_daemon(iblockchain)
+    response = call_daemon_static(iblockchain)
     return response.getvalue().strip()
+
+
+def get_agent_ver(agent_address):
+    w3 = get_web3("https://kovan.infura.io")
+    return get_agent_version(w3, agent_address)
 
 
 def main():
@@ -192,7 +212,7 @@ def main():
                     iblockchain.args.agent_at = srv_info["agent_address"]
                     iblockchain.args.method = method
                     iblockchain.args.params = params
-                    response = call_daemon(iblockchain)
+                    response = call_daemon_static(iblockchain)
                     print(response.getvalue().strip())
                 else:
                     proto_hash = srv_info["metadata_uri"]

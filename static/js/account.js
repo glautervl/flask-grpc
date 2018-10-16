@@ -24,23 +24,22 @@ window.addEventListener('load', async () => {
 });
 
 function get_balances(){
-    document.getElementById('wallet').innerHTML = 'Wallet: ';
     window.web3.eth.getAccounts(function (err, accounts) {
         if(accounts[0]) {
-            document.getElementById('wallet').innerHTML += accounts[0];
+            document.getElementById("user_address").innerHTML = accounts[0];
             window.web3.eth.getBalance(accounts[0], function (err, balance) {
-                document.getElementById('wallet').innerHTML += '<br>ETH: ' + window.web3.fromWei(balance, 'ether');
+                document.getElementById("eth_balance").innerHTML = window.web3.fromWei(balance, 'ether');
             });
             let tokenContract = window.web3.eth.contract(tokenAbi).at('0x3b226ff6aad7851d3263e53cb7688d13a07f6e81');
             tokenContract.balanceOf(accounts[0], (error, balance) => {
                 tokenContract.decimals((error, decimals) => {
                   balance = balance.div(10**decimals);
-                  document.getElementById('wallet').innerHTML += '<br>AGI: ' + balance;
+                  document.getElementById("agi_balance").innerHTML = balance;
                 });
             });
             return accounts[0];
         }
-        else document.getElementById('wallet').innerHTML += 'MetaMask is not enabled!';
+        else document.getElementById("user_address").innerHTML = 'MetaMask is not enabled!';
         return null;
     });
 }

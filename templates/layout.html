@@ -5,6 +5,9 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <!-- Tell the browser to be responsive to screen width -->
         <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+
+        <!--<script src="{{ url_for('static', filename='js/require.js') }}"></script>-->
+
         <!-- Bootstrap 3.3.7 -->
         <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
         <!-- Font Awesome -->
@@ -188,7 +191,12 @@
                 <div class="row">
                     <div class="col-lg-12">
                         <div class="small-box bg-purple">
-                            <div class="inner" id="wallet"></div>
+                            <div class="inner" id="wallet">
+                                Wallet:
+                                <span id="user_address">MetaMask is not enabled!</span>
+                                <br>ETH: <span id="eth_balance">0</span>
+                                <br>AGI: <span id="agi_balance">0</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -211,10 +219,14 @@
         <script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
         <!-- jQuery UI 1.11.4 -->
         <script src="{{ url_for('static', filename='js/jquery-ui.min.js') }}"></script>
+
         <!-- Resolve conflict in jQuery UI tooltip with Bootstrap tooltip -->
+        <!--
         <script>
           $.widget.bridge('uibutton', $.ui.button);
         </script>
+        -->
+
         <!-- Bootstrap 3.3.7 -->
         <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
 
@@ -224,7 +236,9 @@
         <script src="{{ url_for('static', filename='js/snet-contracts/abi/Job.js') }}"></script>
         <script src="{{ url_for('static', filename='js/snet-contracts/abi/Registry.js') }}"></script>
         <script src="{{ url_for('static', filename='js/snet-contracts/abi/SingularityNetToken.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/md5.min.js') }}"></script>
         <script src="{{ url_for('static', filename='js/web3.min.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/ethjs.min.js') }}"></script>
         <script src="{{ url_for('static', filename='js/account.js') }}"></script>
         {% block scripts %}
         {% endblock %}

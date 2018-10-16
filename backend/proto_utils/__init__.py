@@ -57,7 +57,7 @@ def get_proto_file(iblockchain):
         response = []
         for idx, filename in enumerate(os.listdir(spec_dir)):
             response.append(spec_dir.joinpath(filename))
-        return response, metadata_uri
+        return response, metadata_uri, spec_hash
     except Exception as e:
         print(e)
         return None

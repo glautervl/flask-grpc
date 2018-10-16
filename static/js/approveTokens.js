@@ -1,4 +1,4 @@
-window.user_account =  $(".consumer").text();
+window.user_account =  document.getElementById("user_address").textContent;
 window.jobAddress = $(".jobAddress").text();
 window.jobPrice = $(".jobPrice").text();
 window.job_contract = window.web3.eth.contract(jobAbi).at(window.jobAddress);
@@ -15,17 +15,42 @@ function waitForReceipt(hash, cb) {
       error(err);
     }
     if (receipt !== null) {
-      // Transaction went through
-      if (cb) {
-        cb(receipt);
-      }
+        if(receipt["blockNumber"] !== null) {
+            // Transaction went through
+            if (cb) {
+                cb(receipt);
+            }
+        } else {
+            window.setTimeout(function () {
+                waitForReceipt(hash, cb);
+            }, 1000);
+        }
     } else {
-      // Try again in 1 second
-      window.setTimeout(function () {
-        waitForReceipt(hash, cb);
-      }, 1000);
+        window.setTimeout(function () {
+            waitForReceipt(hash, cb);
+        }, 1000);
     }
+
   });
+}
+
+function waitForEvent(contract, cb){
+    if(window.blockNumber === null) window.blockNumber = 'latest';
+    var event = contract.Approval({}, { fromBlock: window.blockNumber, toBlock: 'latest' }).get((err, eventResult) => {
+        if (err) {
+          console.log(err);
+        }
+        if (eventResult !== null && eventResult.length > 0)
+        {
+            if (cb) {
+                cb(eventResult);
+            }
+        } else {
+            setTimeout(function () {
+                waitForEvent(contract, cb);
+            }, 1000);
+        }
+    });
 }
 
 const approveTokens = (contract) => {
@@ -36,7 +61,7 @@ const approveTokens = (contract) => {
             {from: window.user_account},
             (error, hash) => {
                 if (!error) {
-                    console.log('Transaction sent');
+                    console.log('Approving Job...');
                     console.dir(hash);
                     resolve(hash);
                 }
@@ -67,6 +92,7 @@ isMainNetwork()
         document.getElementById("fundJob").value = "Please, wait...";
         console.log("jobAddress: ", window.jobAddress);
         console.log("jobPrice: ", window.jobPrice);
+        window.user_account =  document.getElementById("user_address").textContent;
         console.log("user_account: ", window.user_account);
         return approveTokens(window.token_contract);
     })
@@ -74,11 +100,39 @@ isMainNetwork()
         console.log("hash: ", hash);
         return waitForReceipt(hash, function (receipt) {
             console.log(receipt);
+            console.log("blockNumber: ", receipt["blockNumber"]);
+            console.log("transactionHash: ", receipt["transactionHash"]);
+            window.blockNumber = receipt["blockNumber"];
+            window.transactionHash = receipt["transactionHash"];
             $.post( "/get_receipt", { receipt });
-            return approveTokens(window.token_contract); // <<<======== HERE!
         });
     })
     .then((receipt) => {
-        console.info('receipt', receipt);
+        return waitForEvent(window.token_contract, function (eventResult) {
+            console.log("[approveTokens] eventResult:", eventResult);
+            var last_event = eventResult[eventResult.length-1];
+            if(last_event) {
+                if(window.transactionHash === last_event["transactionHash"]) {
+                    window.consumer = last_event["args"]["spender"];
+                    console.log("consumer: ", window.consumer);
+                    window.owner = last_event["args"]["owner"];
+                    console.log("jobAddress: ", window.jobAddress);
+                    window.jobPrice = last_event["args"]["value"]["c"][0];
+                    console.log("jobPrice: ", window.jobPrice);
+                    document.getElementById("fundJob").value = "FundJob";
+                    document.getElementById("fundJob").disabled = false;
+                    $.post("/get_events", {
+                        blockNumber: window.blockNumber,
+                        transactionHash: window.transactionHash,
+                        consumer: window.consumer,
+                        jobAddress: window.jobAddress,
+                        jobPrice: window.jobPrice
+                    });
+                }
+            }
+            else {
+                document.getElementById("fundJob").value = "JobFail!";
+            }
+        });
     })
     .catch(console.error);

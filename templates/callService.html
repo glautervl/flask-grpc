@@ -16,7 +16,7 @@
         </div>
         <div class="box-footer no-padding">
           <ul class="nav nav-stacked">
-            <form action = "callService" method = "POST">
+            <form action = "response" method = "POST">
                 <table>
                     <tr>
                       <th>Method:</th>
@@ -32,7 +32,7 @@
                 <input type="hidden" name="agent_address" id="agent_address" value={{ agent_address }} >
                 <input type="hidden" name="org" value={{ org_name }} >
                 <input type="hidden" name="service" value={{ service_name }} >
-                <p><input type="submit" value="CallService" id="callService" />
+                <p><input type="submit" value="GetResponse" id="getResponse" /></p>
             </form>
           </ul>
         </div>
@@ -50,8 +50,8 @@
             <div class="widget-user-image">
                 <img class="img-circle" src="{{ url_for('static', filename='img/user7-128x128.jpg') }}" alt="User Avatar">
             </div>
-            <h3 class="widget-user-username">Tokens Approved!</h3>
-            <h5 class="widget-user-desc">Txn Events/Receipt:</h5>
+            <h3 class="widget-user-username">Job Created!</h3>
+            <h5 class="widget-user-desc">Transaction Receipt:</h5>
         </div>
         <div class="box-footer no-padding">
             <div class="box-footer no-padding">
@@ -85,5 +85,5 @@
 {% endblock %}
 
 {% block scripts %}
-<script type="text/javascript" src="static/js/fundJob.js?ver={{fund_job_version}}"></script>
+<script type="text/javascript" src="static/js/callService.js?ver={{call_service_version}}"></script>
 {% endblock %}

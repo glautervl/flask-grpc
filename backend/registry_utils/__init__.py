@@ -41,11 +41,12 @@ def get_registry_info(iblockchain, out_f=None):
                 iblockchain.args.agent_address = c_agent_address
                 endpoint = get_service_endpoint(iblockchain)
                 organizations_json[org][srv]["endpoint"] = endpoint
-                proto_files, metadata_uri = get_proto_file(iblockchain)
-                organizations_json[org][srv]["metadata_uri"] = []
+                proto_files, metadata_uri, _ = get_proto_file(iblockchain)
+                organizations_json[org][srv]["metadata_uri"] = metadata_uri
+                organizations_json[org][srv]["spec_hash"] = []
                 for idx_p, proto_hash in enumerate(proto_files):
                     spec_hash = str(proto_hash).split("/")[-2]
-                    organizations_json[org][srv]["metadata_uri"].append(metadata_uri)
+                    organizations_json[org][srv]["spec_hash"].append(spec_hash)
                     (service_spec, _, _, _, _) = get_descriptor(spec_hash)
                     organizations_json[org][srv]["service_spec"] = service_spec
 

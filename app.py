@@ -1,7 +1,6 @@
 from flask import Flask, render_template, request
 
 import sys
-import time
 import json
 from random import randint
 from threading import Thread
@@ -10,7 +9,7 @@ from pathlib import Path
 app_folder = Path(__file__).absolute().parent
 sys.path.append(str(app_folder.joinpath("backend")))
 
-from backend import update_organization_dict, start_registry_cli, mem, call_service
+from backend import mem, update_organization_dict, start_registry_cli, call_api
 
 
 app = Flask(__name__)
@@ -47,6 +46,10 @@ def get_method_info(method, service_spec):
                                             params.append(t)
                                 return params
     return params
+
+
+def get_spec_hash(org, srv):
+    return mem.organizations_dict[org][srv]["spec_hash"]
 
 
 def get_simple_json():
@@ -111,26 +114,44 @@ def reload():
 def service():
     org_name = request.args.get("org")
     service_name = request.args.get("service")
+
+    mem.spec_hash = get_spec_hash(org_name, service_name)
+
     service_spec = get_service_info(org_name, service_name)
+    if service_spec:
+        for k, v in service_spec[0].items():
+            if k == "agent_address":
+                mem.agent_address = str(v).lower()
+            if k == "endpoint":
+                mem.endpoint = v
+
+    print("[service] agent_address: ", mem.agent_address)
+    print("[service] endpoint: ", mem.endpoint)
+    print("[service] spec_hash: ", mem.spec_hash)
+
     return render_template("service.html",
                            org_name=org_name,
                            service_name=service_name,
+                           agent_address=mem.agent_address,
                            service_spec=service_spec)
 
 
 @app.route('/selected_service', methods=['POST', 'GET'])
 def selected_service():
     if request.method == 'POST':
-        print(request.form)
         org_name = request.form.get("org")
         service_name = request.form.get("service")
         method = request.form.get("method")
         service_spec = get_service_info(org_name, service_name)
         method_info = get_method_info(method, service_spec)
-        print("method_info: ", method_info)
+
+        print("[selected_service] agent_address: ", mem.agent_address)
+        print("[selected_service] method_info: ", method_info)
+
         return render_template("selected_service.html",
                                org_name=org_name,
                                service_name=service_name,
+                               agent_address=mem.agent_address,
                                method=method,
                                method_info=method_info)
 
@@ -155,10 +176,15 @@ def create_job():
             tmp_method_info.append(l)
         method_info = tmp_method_info
         create_job_version = randint(1234,1234567)
+
+        print("[create_job] agent_address: ", mem.agent_address)
+        print("[create_job] method_info: ", method_info)
+
         return render_template("createJob.html",
                                create_job_version=create_job_version,
                                org_name=org_name,
                                service_name=service_name,
+                               agent_address=mem.agent_address,
                                method=method,
                                method_info=method_info)
 
@@ -184,6 +210,7 @@ def approve_tokens():
         method_info = tmp_method_info
         approve_tokens_version = randint(1234, 1234567)
 
+        print("[approveTokens] agent_address: ", mem.agent_address)
         print("[approveTokens] method_info: ", method_info)
 
         return render_template("approveTokens.html",
@@ -192,6 +219,7 @@ def approve_tokens():
                                events=mem.events,
                                org_name=org_name,
                                service_name=service_name,
+                               agent_address=mem.agent_address,
                                method=method,
                                method_info=method_info)
 
@@ -217,6 +245,7 @@ def fund_job():
         method_info = tmp_method_info
         fund_job_version = randint(1234, 1234567)
 
+        print("[fund_job] agent_address: ", mem.agent_address)
         print("[fund_job] method_info: ", method_info)
 
         return render_template("fundJob.html",
@@ -225,8 +254,121 @@ def fund_job():
                                events=mem.events,
                                org_name=org_name,
                                service_name=service_name,
+                               agent_address=mem.agent_address,
                                method=method,
                                method_info=method_info)
+
+
+@app.route('/callService', methods=['POST', 'GET'])
+def call_service():
+    if request.method == 'POST':
+        org_name = request.form.get("org")
+        service_name = request.form.get("service")
+        params = {}
+        for k, v in request.form.items():
+            if "params#" in k:
+                param = k.replace("params#", "")
+                params[param] = v
+        method = request.form.get("method")
+        service_spec = get_service_info(org_name, service_name)
+        method_info = get_method_info(method, service_spec)
+        tmp_method_info = []
+        for method_i in method_info:
+            l = method_i
+            l.append(params[method_i[1]])
+            tmp_method_info.append(l)
+        method_info = tmp_method_info
+        call_service_version = randint(1234, 1234567)
+
+        print("[call_service] agent_address: ", mem.agent_address)
+        print("[call_service] method_info: ", method_info)
+
+        return render_template("callService.html",
+                               call_service_version=call_service_version,
+                               receipt=mem.receipt,
+                               events=mem.events,
+                               org_name=org_name,
+                               service_name=service_name,
+                               agent_address=mem.agent_address,
+                               method=method,
+                               method_info=method_info)
+
+
+@app.route('/response', methods=['POST', 'GET'])
+def response():
+    if request.method == 'POST':
+        org_name = request.form.get("org")
+        service_name = request.form.get("service")
+        method = request.form.get("method")
+        params = {}
+        for k, v in request.form.items():
+            if "params#" in k:
+                param = k.replace("params#", "")
+                params[param] = v
+
+        res = request.form
+        service_response = None
+        while not service_response:
+            print("agent_address: ", mem.agent_address)
+            print("job_address: ", mem.job_address)
+            print("job_signature: ", mem.job_signature)
+            print("method: ", method)
+            print("params: ", json.dumps(params))
+            try:
+                service_response = call_api(mem.job_address,
+                                            mem.job_signature,
+                                            mem.endpoint,
+                                            mem.spec_hash[0],
+                                            method,
+                                            json.dumps(params))
+                if service_response == -1:
+                    raise Exception
+            except Exception as e:
+                print(e)
+                service_response = call_api(mem.job_address,
+                                            mem.job_signature,
+                                            mem.endpoint,
+                                            mem.spec_hash[0],
+                                            method,
+                                            json.dumps(params))
+                break
+        return render_template("response.html",
+                               org_name=org_name,
+                               service_name=service_name,
+                               agent_address=mem.agent_address,
+                               response=res,
+                               service_response=service_response)
+
+
+@app.route('/response', methods=['POST', 'GET'])
+def response_static():
+    if request.method == 'POST':
+        org_name = request.form.get("org")
+        service_name = request.form.get("service")
+        method = request.form.get("method")
+        params = {}
+        for k, v in request.form.items():
+            if "params#" in k:
+                param = k.replace("params#", "")
+                params[param] = v
+        agent_address = get_agent_address(org_name, service_name)
+        res = request.form
+        service_response = None
+        while not service_response:
+            print("agent_address: ", agent_address)
+            print("method: ", method)
+            print("params: ", json.dumps(params))
+            try:
+                service_response = call_service(agent_address, method, json.dumps(params))
+            except Exception as e:
+                print(e)
+                service_response = call_service(agent_address, method, json.dumps(params))
+                break
+        return render_template("response.html",
+                               org_name=org_name,
+                               service_name=service_name,
+                               response=res,
+                               service_response=service_response)
 
 
 @app.route('/get_receipt', methods=['POST'])
@@ -256,35 +398,20 @@ def get_events():
                                events=mem.events)
 
 
-@app.route('/response', methods=['POST', 'GET'])
-def response():
+@app.route('/get_signature', methods=['POST'])
+def get_signature():
     if request.method == 'POST':
-        org_name = request.form.get("org")
-        service_name = request.form.get("service")
-        method = request.form.get("method")
-        params = {}
+        print("============= GET SIGNATURE ================")
         for k, v in request.form.items():
-            if "params#" in k:
-                param = k.replace("params#", "")
-                params[param] = v
-        agent_address = get_agent_address(org_name, service_name)
-        res = request.form
-        service_response = None
-        while not service_response:
-            print("agent_address: ", agent_address)
-            print("method: ", method)
-            print("params: ", json.dumps(params))
-            try:
-                service_response = call_service(agent_address, method, json.dumps(params))
-            except Exception as e:
-                print(e)
-                service_response = call_service(agent_address, method, json.dumps(params))
-                break
-        return render_template("response.html",
-                               org_name=org_name,
-                               service_name=service_name,
-                               response=res,
-                               service_response=service_response)
+            print(k, v)
+            if k == "job_address":
+                mem.job_address = v
+            if k == "job_signature":
+                mem.job_signature = v
+
+        return render_template("callService.html",
+                               events=mem.events,
+                               receipt=mem.receipt)
 
 
 if __name__ == "__main__":

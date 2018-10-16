@@ -29,8 +29,9 @@
                     </tr>
                     {% endfor %}
                 </table>
-                <input type="hidden" name="org" value={{ org_name }} ></td>
-                <input type="hidden" name="service" value={{ service_name }} ></td>
+                <input type="hidden" name="agent_address" id="agent_address" value={{ agent_address }} >
+                <input type="hidden" name="org" value={{ org_name }} >
+                <input type="hidden" name="service" value={{ service_name }} >
                 <p><input type="submit" value="ApproveTokens" id="approveTokens" /></p>
             </form>
           </ul>
