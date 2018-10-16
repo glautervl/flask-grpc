@@ -31,7 +31,7 @@
                   {% for service_k, service_v in service_info.items() %}
                     {% if service_k == 'service_spec' %}
                         {% for k1, v1 in service_v.items() %}
-                                    <table>
+                                    <table border="1">
                                     {% for k2, v2 in v1.items() %}
                                         {% if k2 == 'method' %}
                                           <tr>
@@ -63,8 +63,10 @@
                                               <input type="hidden" name="org" value={{ org_name }} >
                                               <input type="hidden" name="service" value={{ service_name }} >
                                               <input type="hidden" name="method" value={{ v2 }} >
+                                              <p></p>
                                               <input type="submit" value="Select" />
                                           </form>
+                                          <br>
                                         {% endif %}
                                     {% endfor %}
                         {% endfor %}
@@ -76,6 +78,6 @@
         </div>
     </div>
     {% endfor %}
-    <li><a href="/">Voltar</a></li>
+    <li><a href="/">Back</a></li>
 
 {% endblock %}

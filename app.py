@@ -2,6 +2,7 @@ from flask import Flask, render_template, request
 
 import sys
 import json
+import base64
 from random import randint
 from threading import Thread
 from pathlib import Path
@@ -59,6 +60,8 @@ def get_simple_json():
         for service_name, service_info in org_info.items():
             service_list = [service_name]
             for k, v in service_info.items():
+                if k == "price":
+                    service_list.append("{:.8f}".format(float(v)/10**8))
                 if k == "agent_address":
                     service_list.append(v)
                 if k == "endpoint":
@@ -77,6 +80,33 @@ def get_agent_address(target_org, target_service):
                     address = item[1]
                     break
     return address
+
+
+def is_base64(s):
+    try:
+        return base64.b64encode(base64.b64decode(s)) == s
+    except Exception as e:
+        return False
+
+
+def response_html(content):
+    ret = ""
+    if type(content) == dict:
+        ret += "<tr>"
+        for k, v in content.items():
+            ret += "<th>" + str(k) + "</th>"
+            if type(v) == dict:
+                ret += response_html(v)
+            else:
+                if is_base64(str(v).encode()):
+                    ret += "<td><img src=\"data:image/png;base64, " + str(v) + "\" /></td>"
+                else:
+                    ret += "<td>" + str(v) + "</td>"
+            ret += "</tr>"
+    else:
+        ret += "<td>" + str(content) + "</td>"
+    ret += "</tr>"
+    return ret
 
 
 @app.route('/')
@@ -332,6 +362,9 @@ def response():
                                             method,
                                             json.dumps(params))
                 break
+
+        service_response = "<table border=\"1\">" + response_html(service_response) + "</table>"
+
         return render_template("response.html",
                                org_name=org_name,
                                service_name=service_name,

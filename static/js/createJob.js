@@ -85,10 +85,13 @@ isMainNetwork()
         document.getElementById("approveTokens").disabled = true;
         document.getElementById("approveTokens").value = "Please, wait...";
         window.agent_address =  document.getElementById("agent_address").value;
+        console.log("agent_address: ", window.agent_address);
         window.agent = window.web3.eth.contract(agentAbi).at(window.agent_address);
         window.user_account =  document.getElementById("user_address").textContent;
         console.log("user_account: ", window.user_account);
-        return createJob(agent);
+        if (window.user_account.includes("MetaMask")){
+            document.getElementById("approveTokens").value = "MetaMask Disabled!";
+        } else return createJob(agent);
     })
     .then((hash) => {
         console.log("hash:", hash);

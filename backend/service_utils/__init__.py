@@ -54,6 +54,26 @@ def get_service_endpoint(iblockchain):
     return response
 
 
+def get_service_price(iblockchain):
+    current_price = None
+    try:
+        agent_contract_def = get_contract_def("Agent")
+        agent_address = iblockchain.args.agent_address
+        current_price = ContractCommand(
+            config=iblockchain.config,
+            args=iblockchain.get_contract_argser(
+                contract_address=agent_address,
+                contract_function="currentPrice",
+                contract_def=agent_contract_def)(),
+            out_f=None,
+            err_f=None,
+            w3=iblockchain.w3,
+            ident=iblockchain.ident).call()
+    except Exception as e:
+        print(e)
+    return current_price
+
+
 def call(job_address, job_signature, endpoint, spec_hash, method, params_string):
     try:
         (services_json, mods, service_name, request_name, response_name) = get_descriptor(spec_hash, method)

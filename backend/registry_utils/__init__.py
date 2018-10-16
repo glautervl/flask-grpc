@@ -5,7 +5,7 @@ import hashlib
 from pathlib import Path
 
 from organization_utils import get_organization_list, get_organization_list_services
-from service_utils import get_service_registration, get_service_endpoint, get_descriptor
+from service_utils import get_service_registration, get_service_endpoint, get_service_price, get_descriptor
 from proto_utils import get_proto_file
 
 
@@ -39,6 +39,8 @@ def get_registry_info(iblockchain, out_f=None):
                 organizations_json[org][srv]["agent_address"] = c_agent_address
                 organizations_json[org][srv]["tags"] = c_tags
                 iblockchain.args.agent_address = c_agent_address
+                price = get_service_price(iblockchain)
+                organizations_json[org][srv]["price"] = price
                 endpoint = get_service_endpoint(iblockchain)
                 organizations_json[org][srv]["endpoint"] = endpoint
                 proto_files, metadata_uri, _ = get_proto_file(iblockchain)

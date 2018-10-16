@@ -17,7 +17,7 @@
         <div class="box-footer no-padding">
           <ul class="nav nav-stacked">
             <form action = "callService" method = "POST">
-                <table>
+                <table border="1">
                     <tr>
                       <th>Method:</th>
                       <td>{{ method }}<input type="hidden" name="method" value={{ method }} ></td>
@@ -32,14 +32,16 @@
                 <input type="hidden" name="agent_address" id="agent_address" value={{ agent_address }} >
                 <input type="hidden" name="org" value={{ org_name }} >
                 <input type="hidden" name="service" value={{ service_name }} >
+                <br>
                 <p><input type="submit" value="CallService" id="callService" />
             </form>
+            <br>
           </ul>
         </div>
       </div>
     </div>
 </div>
-<li><a href="/">Voltar</a></li>
+<li><a href="/">Back</a></li>
 
 <div class="row">
     <div class="col-lg-12">
@@ -81,7 +83,7 @@
     </div>
 </div>
 
-<li><a href="/">Voltar</a></li>
+<li><a href="/">Back</a></li>
 {% endblock %}
 
 {% block scripts %}

@@ -16,7 +16,7 @@
           </div>
           <div class="box-footer no-padding">
             <ul class="nav nav-stacked">
-              <table>
+              <table border="1">
               {% for key, value in response.items() %}
                  <tr>
                       <th> {{ key }} </th>
@@ -24,18 +24,11 @@
                  </tr>
               {% endfor %}
               </table>
-              <table>
-              {% for key, value in service_response.items() %}
-                 <tr>
-                      <th> {{ key }} </th>
-                      <td> {{ value }} </td>
-                 </tr>
-              {% endfor %}
-              </table>
+              <br>{{ service_response|safe }}<br>
             </ul>
           </div>
         </div>
       </div>
     </div>
-    <li><a href="/">Voltar</a></li>
+    <li><a href="/">Back</a></li>
 {% endblock %}
