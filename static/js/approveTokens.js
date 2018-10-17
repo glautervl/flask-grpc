@@ -12,9 +12,9 @@ window.consumer = "";
 function waitForReceipt(hash, cb) {
   window.web3.eth.getTransactionReceipt(hash, function (err, receipt) {
     if (err) {
-      error(err);
+      console.log(err);
     }
-    if (receipt !== null) {
+    if (receipt != null) {
         if(receipt["blockNumber"] !== null) {
             // Transaction went through
             if (cb) {
@@ -63,6 +63,7 @@ const approveTokens = (contract) => {
                 if (!error) {
                     console.log('Approving Job...');
                     console.dir(hash);
+                    window.hash = hash;
                     resolve(hash);
                 }
                 else {
@@ -102,7 +103,8 @@ isMainNetwork()
         } else return approveTokens(window.token_contract);
     })
     .then((hash) => {
-        console.log("hash: ", hash);
+        if(hash) window.hash = hash;
+        console.log("hash:", window.hash);
         return waitForReceipt(hash, function (receipt) {
             console.log(receipt);
             console.log("blockNumber: ", receipt["blockNumber"]);

@@ -12,9 +12,9 @@ window.consumer = "";
 function waitForReceipt(hash, cb) {
   window.web3.eth.getTransactionReceipt(hash, function (err, receipt) {
     if (err) {
-      error(err);
+      console.log(err);
     }
-    if (receipt !== null) {
+    if (receipt != null) {
         if(receipt["blockNumber"] !== null) {
             // Transaction went through
             if (cb) {
@@ -61,6 +61,7 @@ const fundJob = (contract) => {
                 if (!error) {
                     console.log('Funding Job...');
                     console.dir(hash);
+                    window.hash = hash;
                     resolve(hash);
                 }
                 else {
@@ -97,10 +98,11 @@ isMainNetwork()
             document.getElementById("approveTokens").value = "MetaMask Disabled!";
             window.user_account =  document.getElementById("user_address").value;
             console.log("user_account: ", window.user_account);
-        } else  fundJob(window.job_contract);
+        } else return fundJob(window.job_contract);
     })
     .then((hash) => {
-        console.log("hash: ", hash);
+        if(hash) window.hash = hash;
+        console.log("hash:", window.hash);
         return waitForReceipt(hash, function (receipt) {
             console.log(receipt);
             console.log("blockNumber: ", receipt["blockNumber"]);

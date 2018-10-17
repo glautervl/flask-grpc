@@ -14,9 +14,9 @@ window.consumer = "";
 function waitForReceipt(hash, cb) {
   window.web3.eth.getTransactionReceipt(hash, function (err, receipt) {
     if (err) {
-      error(err);
+      console.log(err);
     }
-    if (receipt !== null) {
+    if (receipt != null) {
       // Transaction went through
       if (cb) {
         cb(receipt);
@@ -112,7 +112,7 @@ isMainNetwork()
         document.getElementById("getResponse").textContent = "Please, wait...";
         console.log("jobAddress: ", window.jobAddress);
         console.log("jobPrice: ", window.jobPrice);
-        window.agent = window.web3.eth.contract(agentAbi).at(window.agent_address);
+        window.agent = window.web3.eth.contract(agentAbi).at(window.agent_address.value);
 
         const oldSigAgentBytecodeChecksum = "f4b0a8064a38abaf2630f5f6bd0043c8";
         let addressBytes = [];
