@@ -1,6 +1,6 @@
 window.receipt = null;
-window.blockNumber = 'latest';
-window.transactionHash;
+window.blockNumber = null;
+window.transactionHash = null;
 window.consumer = "";
 window.jobAddress = "";
 window.jobPrice = "";
@@ -30,8 +30,16 @@ function waitForReceipt(cb) {
   });
 }
 
+function getLatestBlock() {
+    window.web3.eth.getBlock('latest', function (err, res) {
+        if (!err) {
+            console.log('blockNumber["latest"]:', res.number);
+            window.blockNumber = res.number;
+        }
+    });
+}
+
 function waitForEvent(contract, cb){
-    if(window.blockNumber === null) window.blockNumber = 'latest';
     var event = contract.JobCreated({}, { fromBlock: window.blockNumber, toBlock: 'latest' }).get((err, eventResult) => {
         if (err) {
           console.log(err);
@@ -102,6 +110,7 @@ const isMainNetwork = () => {
             netId === '42' ? resolve() : reject('not kovan network');
             get_account();
             window.user_account =  document.getElementById("user_account").textContent;
+            getLatestBlock();
         });
     });
 };
