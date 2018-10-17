@@ -120,6 +120,7 @@ isMainNetwork()
             if(eventResult) {
                 for(let i=0; i<eventResult.length; i++) {
                     var last_event = eventResult[i];
+                    console.log("[approveTokens] last_event:", last_event);
                     if (window.transactionHash === last_event["transactionHash"]) {
                         window.consumer = last_event["args"]["spender"];
                         console.log("consumer: ", window.consumer);
