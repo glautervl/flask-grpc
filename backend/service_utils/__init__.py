@@ -102,19 +102,6 @@ def call(job_address, job_signature, endpoint, spec_hash, method, params_string)
         request = request_class()
         json_format.Parse(json.dumps(params), request, True)
 
-        # encoding = requests.get(endpoint + "/encoding").text.strip()
-        # if encoding == "json":
-        #     def json_serializer(*args, **kwargs):
-        #         return bytes(json_format.MessageToJson(args[0], True, preserving_proto_field_name=True), "utf-8")
-        #
-        #     def json_deserializer(*args, **kwargs):
-        #         resp = response_class()
-        #         json_format.Parse(args[0], resp, True)
-        #         return resp
-        #
-        #     call_fn._request_serializer = json_serializer
-        #     call_fn._response_deserializer = json_deserializer
-
         print("Calling service...\n")
         response = call_fn(request, metadata=[("snet-job-address", job_address), ("snet-job-signature", job_signature)])
 
