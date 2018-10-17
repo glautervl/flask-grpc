@@ -61,6 +61,7 @@ const createJob = (contract) => {
                 }
                 else {
                     console.log(error);
+                    document.getElementById("approveTokens").textContent = "Rejected";
                     reject(error);
                 }
             }
@@ -76,6 +77,7 @@ const isMainNetwork = () => {
                 return;
             }
             netId === '42' ? resolve() : reject('not kovan network');
+            window.user_account =  document.getElementById("user_address").textContent;
         });
     });
 };
@@ -87,10 +89,11 @@ isMainNetwork()
         window.agent_address =  document.getElementById("agent_address").value;
         console.log("agent_address: ", window.agent_address);
         window.agent = window.web3.eth.contract(agentAbi).at(window.agent_address);
-        window.user_account =  document.getElementById("user_address").textContent;
         console.log("user_account: ", window.user_account);
         if (window.user_account.includes("MetaMask")){
             document.getElementById("approveTokens").value = "MetaMask Disabled!";
+            window.user_account =  document.getElementById("user_address").value;
+            console.log("user_account: ", window.user_account);
         } else return createJob(agent);
     })
     .then((hash) => {

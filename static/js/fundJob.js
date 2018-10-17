@@ -65,6 +65,7 @@ const fundJob = (contract) => {
                 }
                 else {
                     console.log(error);
+                    document.getElementById("callService").textContent = "Rejected";
                     reject(error);
                 }
             }
@@ -80,6 +81,7 @@ const isMainNetwork = () => {
                 return;
             }
             netId === '42' ? resolve() : reject('not kovan network');
+            window.user_account =  document.getElementById("user_address").textContent;
         });
     });
 };
@@ -90,9 +92,12 @@ isMainNetwork()
         document.getElementById("callService").textContent = "Please, wait...";
         console.log("jobAddress: ", window.jobAddress);
         console.log("jobPrice: ", window.jobPrice);
-        window.user_account =  document.getElementById("user_address").textContent;
         console.log("user_account: ", window.user_account);
-        return fundJob(window.job_contract);
+        if (window.user_account.includes("MetaMask")){
+            document.getElementById("approveTokens").value = "MetaMask Disabled!";
+            window.user_account =  document.getElementById("user_address").value;
+            console.log("user_account: ", window.user_account);
+        } else  fundJob(window.job_contract);
     })
     .then((hash) => {
         console.log("hash: ", hash);

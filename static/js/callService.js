@@ -78,6 +78,7 @@ const isMainNetwork = () => {
                 return;
             }
             netId === '42' ? resolve() : reject('not kovan network');
+            window.user_account =  document.getElementById("user_address").textContent;
         });
     });
 };
@@ -96,6 +97,12 @@ isMainNetwork()
 
             }
         );
+        console.log("user_account: ", window.user_account);
+        if (window.user_account.includes("MetaMask")) {
+            document.getElementById("approveTokens").value = "MetaMask Disabled!";
+            window.user_account = document.getElementById("user_address").value;
+            console.log("user_account: ", window.user_account);
+        }
     })
     .then((state) => {
         console.log("jobState: ", state);
@@ -105,10 +112,6 @@ isMainNetwork()
         document.getElementById("getResponse").textContent = "Please, wait...";
         console.log("jobAddress: ", window.jobAddress);
         console.log("jobPrice: ", window.jobPrice);
-        window.user_account =  document.getElementById("user_address").textContent;
-        console.log("user_account: ", window.user_account);
-        window.agent_address =  document.getElementById("agent_address").value;
-        console.log("agent_address: ", window.agent_address);
         window.agent = window.web3.eth.contract(agentAbi).at(window.agent_address);
 
         const oldSigAgentBytecodeChecksum = "f4b0a8064a38abaf2630f5f6bd0043c8";
