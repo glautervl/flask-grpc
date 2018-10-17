@@ -38,7 +38,7 @@
                          </tr>
                     </table>
                     <br>
-                    <form action = "createJob" method = "POST">
+                    <form action = "callService" method = "POST">
                         <table class="table table-hover">
                             <tr>
                               <th class="col-md-2">Method:</th>
@@ -54,7 +54,7 @@
                         <input type="hidden" name="agent_address" id="agent_address" value={{ agent_address }} >
                         <input type="hidden" name="org" value={{ org_name }} >
                         <input type="hidden" name="service" value={{ service_name }} >
-                        <button type="submit" class="btn btn-primary" id="tryAgain">TryAgain</button>
+                        <button type="submit" class="btn btn-primary" id="callAgain">CallAgain</button>
                     </form>
                 {% endif %}
             </ul>
