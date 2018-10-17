@@ -1,5 +1,4 @@
-import sys
-from pathlib import Path
+import os
 from io import StringIO
 from configparser import ConfigParser, ExtendedInterpolation
 
@@ -51,6 +50,9 @@ def get_conf():
 
 
 def main():
+    # For protobuf descriptor pool
+    os.environ["PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION"] = "python"
+
     args = CustomArgs()
     get_conf()
     iblockchain = BlockchainCommand(conf, args)

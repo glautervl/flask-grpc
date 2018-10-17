@@ -138,6 +138,9 @@ def start_registry_cli():
 
 
 def update_organization_dict():
+    if not os.path.exists(mem.registry_folder):
+        os.makedirs(mem.registry_folder)
+
     print("Getting JSON...")
     found = False
     for file in os.listdir(mem.registry_folder):
