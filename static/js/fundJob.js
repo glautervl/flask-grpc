@@ -44,7 +44,7 @@ function getLatestBlock() {
 }
 
 function waitForEvent(contract, cb){
-    var event = contract.JobCreated({}, { fromBlock: window.blockNumber, toBlock: 'latest' }).get((err, eventResult) => {
+    var event = contract.JobFunded({}, { fromBlock: window.blockNumber, toBlock: 'latest' }).get((err, eventResult) => {
         if (err) {
           console.log(err);
         }
@@ -142,33 +142,30 @@ isMainNetwork()
             window.blockNumber = receipt["blockNumber"];
             window.transactionHash = receipt["transactionHash"];
             $.post( "/get_receipt", { receipt });
-        });
-    })
-    .then((receipt) => {
-        console.log(receipt);
-        return waitForEvent(window.job_contract, function (eventResult) {
-            if(eventResult) {
-                for(let i=0; i<eventResult.length; i++) {
-                    var last_event = eventResult[i];
-                    console.log("[fundJob] last_event:", last_event);
-                    if (window.transactionHash === last_event["transactionHash"]) {
-                        console.log("jobAddress: ", window.jobAddress);
-                        document.getElementById("callService").textContent = "CallService";
-                        document.getElementById("callService").disabled = false;
-                        $.post("/get_events", {
-                            blockNumber: window.blockNumber,
-                            transactionHash: window.transactionHash,
-                            consumer: window.consumer,
-                            jobAddress: window.jobAddress,
-                            jobPrice: window.jobPrice
-                        });
+            waitForEvent(window.job_contract, function (eventResult) {
+                if(eventResult) {
+                    for(let i=0; i<eventResult.length; i++) {
+                        var last_event = eventResult[i];
+                        console.log("[fundJob] last_event:", last_event);
+                        if (window.transactionHash === last_event["transactionHash"]) {
+                            console.log("jobAddress: ", window.jobAddress);
+                            document.getElementById("callService").textContent = "CallService";
+                            document.getElementById("callService").disabled = false;
+                            $.post("/get_events", {
+                                blockNumber: window.blockNumber,
+                                transactionHash: window.transactionHash,
+                                consumer: window.consumer,
+                                jobAddress: window.jobAddress,
+                                jobPrice: window.jobPrice
+                            });
+                        }
                     }
                 }
-            }
-            else {
-                console.log("[fundJob] No eventResult!");
-                document.getElementById("callService").textContent = "JobFail!";
-            }
+                else {
+                    console.log("[fundJob] No eventResult!");
+                    document.getElementById("callService").textContent = "JobFail!";
+                }
+            });
         });
     })
     .catch(console.error);

@@ -11,48 +11,11 @@ window.blockNumber = null;
 window.transactionHash = "";
 window.consumer = "";
 
-function waitForReceipt(hash, cb) {
-  window.web3.eth.getTransactionReceipt(hash, function (err, receipt) {
-    if (err) {
-      console.log(err);
-    }
-    if (receipt != null) {
-      // Transaction went through
-      if (cb) {
-        cb(receipt);
-      }
-    } else {
-      // Try again in 1 second
-      window.setTimeout(function () {
-        waitForReceipt(hash, cb);
-      }, 1000);
-    }
-  });
-}
-
 function getLatestBlock() {
     window.web3.eth.getBlock('latest', function (err, res) {
         if (!err) {
             console.log('blockNumber["latest"]:', res.number);
             window.blockNumber = res.number;
-        }
-    });
-}
-
-function waitForEvent(contract, cb){
-    var event = contract.JobCreated({}, { fromBlock: window.blockNumber, toBlock: 'latest' }).get((err, eventResult) => {
-        if (err) {
-          console.log(err);
-        }
-        if (eventResult !== null && eventResult.length > 0)
-        {
-            if (cb) {
-                cb(eventResult);
-            }
-        } else {
-            setTimeout(function () {
-                waitForEvent(contract, cb);
-            }, 1000);
         }
     });
 }

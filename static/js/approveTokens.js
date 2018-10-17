@@ -44,7 +44,7 @@ function getLatestBlock() {
 }
 
 function waitForEvent(contract, cb){
-    var event = contract.JobCreated({}, { fromBlock: window.blockNumber, toBlock: 'latest' }).get((err, eventResult) => {
+    var event = contract.Approval({}, { fromBlock: window.blockNumber, toBlock: 'latest' }).get((err, eventResult) => {
         if (err) {
           console.log(err);
         }
@@ -144,37 +144,35 @@ isMainNetwork()
             window.blockNumber = receipt["blockNumber"];
             window.transactionHash = receipt["transactionHash"];
             $.post( "/get_receipt", { receipt });
-        });
-    })
-    .then((receipt) => {
-        return waitForEvent(window.token_contract, function (eventResult) {
-            if(eventResult) {
-                for(let i=0; i<eventResult.length; i++) {
-                    var last_event = eventResult[i];
-                    console.log("[approveTokens] last_event:", last_event);
-                    if (window.transactionHash === last_event["transactionHash"]) {
-                        window.consumer = last_event["args"]["spender"];
-                        console.log("consumer: ", window.consumer);
-                        window.owner = last_event["args"]["owner"];
-                        console.log("jobAddress: ", window.jobAddress);
-                        window.jobPrice = last_event["args"]["value"]["c"][0];
-                        console.log("jobPrice: ", window.jobPrice);
-                        document.getElementById("fundJob").textContent = "FundJob";
-                        document.getElementById("fundJob").disabled = false;
-                        $.post("/get_events", {
-                            blockNumber: window.blockNumber,
-                            transactionHash: window.transactionHash,
-                            consumer: window.consumer,
-                            jobAddress: window.jobAddress,
-                            jobPrice: window.jobPrice
-                        });
+            waitForEvent(window.token_contract, function (eventResult) {
+                if(eventResult) {
+                    for(let i=0; i<eventResult.length; i++) {
+                        var last_event = eventResult[i];
+                        console.log("[approveTokens] last_event:", last_event);
+                        if (window.transactionHash === last_event["transactionHash"]) {
+                            window.consumer = last_event["args"]["spender"];
+                            console.log("consumer: ", window.consumer);
+                            window.owner = last_event["args"]["owner"];
+                            console.log("jobAddress: ", window.jobAddress);
+                            window.jobPrice = last_event["args"]["value"]["c"][0];
+                            console.log("jobPrice: ", window.jobPrice);
+                            document.getElementById("fundJob").textContent = "FundJob";
+                            document.getElementById("fundJob").disabled = false;
+                            $.post("/get_events", {
+                                blockNumber: window.blockNumber,
+                                transactionHash: window.transactionHash,
+                                consumer: window.consumer,
+                                jobAddress: window.jobAddress,
+                                jobPrice: window.jobPrice
+                            });
+                        }
                     }
                 }
-            }
-            else {
-                console.log("[approveTokens] No eventResult!");
-                document.getElementById("fundJob").textContent = "JobFail!";
-            }
+                else {
+                    console.log("[approveTokens] No eventResult!");
+                    document.getElementById("fundJob").textContent = "JobFail!";
+                }
+            });
         });
     })
     .catch(console.error);

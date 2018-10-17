@@ -138,37 +138,35 @@ isMainNetwork()
             window.blockNumber = receipt["blockNumber"];
             window.transactionHash = receipt["transactionHash"];
             $.post("/get_receipt", { receipt });
-        });
-    })
-    .then((receipt) => {
-        return waitForEvent(agent, function (eventResult) {
-            if(eventResult) {
-                for(let i=0; i<eventResult.length; i++) {
-                    var last_event = eventResult[i];
-                    console.log("[createJob] last_event:", last_event);
-                    if (window.transactionHash === last_event["transactionHash"]) {
-                        window.consumer = last_event["args"]["consumer"];
-                        console.log("consumer: ", window.consumer);
-                        window.jobAddress = last_event["args"]["job"];
-                        console.log("jobAddress: ", window.jobAddress);
-                        window.jobPrice = last_event["args"]["jobPrice"]["c"][0];
-                        console.log("jobPrice: ", window.jobPrice);
-                        document.getElementById("approveTokens").textContent = "ApproveTokens";
-                        document.getElementById("approveTokens").disabled = false;
-                        $.post("/get_events", {
-                            blockNumber: window.blockNumber,
-                            transactionHash: window.transactionHash,
-                            consumer: window.consumer,
-                            jobAddress: window.jobAddress,
-                            jobPrice: window.jobPrice
-                        });
+            waitForEvent(agent, function (eventResult) {
+                if(eventResult) {
+                    for(let i=0; i<eventResult.length; i++) {
+                        var last_event = eventResult[i];
+                        console.log("[createJob] last_event:", last_event);
+                        if (window.transactionHash === last_event["transactionHash"]) {
+                            window.consumer = last_event["args"]["consumer"];
+                            console.log("consumer: ", window.consumer);
+                            window.jobAddress = last_event["args"]["job"];
+                            console.log("jobAddress: ", window.jobAddress);
+                            window.jobPrice = last_event["args"]["jobPrice"]["c"][0];
+                            console.log("jobPrice: ", window.jobPrice);
+                            document.getElementById("approveTokens").textContent = "ApproveTokens";
+                            document.getElementById("approveTokens").disabled = false;
+                            $.post("/get_events", {
+                                blockNumber: window.blockNumber,
+                                transactionHash: window.transactionHash,
+                                consumer: window.consumer,
+                                jobAddress: window.jobAddress,
+                                jobPrice: window.jobPrice
+                            });
+                        }
                     }
                 }
-            }
-            else {
-                console.log("[createJob] No eventResult!");
-                document.getElementById("approveTokens").textContent = "JobFail!";
-            }
+                else {
+                    console.log("[createJob] No eventResult!");
+                    document.getElementById("approveTokens").textContent = "JobFail!";
+                }
+            });
         });
     })
     .catch(console.error);
