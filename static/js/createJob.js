@@ -1,13 +1,12 @@
 window.receipt = null;
 window.blockNumber = 'latest';
-window.transactionHash = "";
+window.transactionHash;
 window.consumer = "";
 window.jobAddress = "";
 window.jobPrice = "";
-window.hash;
 
 function waitForReceipt(cb) {
-  window.web3.eth.getTransactionReceipt(window.hash, function (err, receipt) {
+  window.web3.eth.getTransactionReceipt(window.transactionHash, function (err, receipt) {
     if (err) {
       console.log(err);
     }
@@ -58,7 +57,7 @@ const createJob = (contract) => {
                 if (!error) {
                     console.log('Creating Job...');
                     console.dir(hash);
-                    window.hash = hash;
+                    window.transactionHash = hash;
                     resolve(hash);
                 }
                 else {
@@ -122,8 +121,8 @@ isMainNetwork()
         } else return createJob(agent);
     })
     .then((hash) => {
-        if(hash) window.hash = hash;
-        console.log("hash:", window.hash);
+        if(hash) window.transactionHash = hash;
+        console.log("transactionHash:", window.transactionHash);
         return waitForReceipt(function (receipt) {
             console.log("blockNumber: ", receipt["blockNumber"]);
             console.log("transactionHash: ", receipt["transactionHash"]);

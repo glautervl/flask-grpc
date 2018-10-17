@@ -9,8 +9,8 @@ window.blockNumber = 'latest';
 window.transactionHash = "";
 window.consumer = "";
 
-function waitForReceipt(hash, cb) {
-  window.web3.eth.getTransactionReceipt(hash, function (err, receipt) {
+function waitForReceipt(cb) {
+  window.web3.eth.getTransactionReceipt(window.transactionHash, function (err, receipt) {
     if (err) {
       console.log(err);
     }
@@ -22,12 +22,12 @@ function waitForReceipt(hash, cb) {
             }
         } else {
             window.setTimeout(function () {
-                waitForReceipt(hash, cb);
+                waitForReceipt(cb);
             }, 1000);
         }
     } else {
         window.setTimeout(function () {
-            waitForReceipt(hash, cb);
+            waitForReceipt(cb);
         }, 1000);
     }
 
@@ -61,7 +61,7 @@ const fundJob = (contract) => {
                 if (!error) {
                     console.log('Funding Job...');
                     console.dir(hash);
-                    window.hash = hash;
+                    window.transactionHash = hash;
                     resolve(hash);
                 }
                 else {
@@ -124,9 +124,9 @@ isMainNetwork()
         } else return fundJob(window.job_contract);
     })
     .then((hash) => {
-        if(hash) window.hash = hash;
-        console.log("hash:", window.hash);
-        return waitForReceipt(hash, function (receipt) {
+        if(hash) window.transactionHash = hash;
+        console.log("hash:", window.transactionHash);
+        return waitForReceipt(function (receipt) {
             console.log(receipt);
             console.log("blockNumber: ", receipt["blockNumber"]);
             console.log("transactionHash: ", receipt["transactionHash"]);
