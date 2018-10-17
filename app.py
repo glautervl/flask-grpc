@@ -480,7 +480,7 @@ def main():
         th_registry.daemon = True
         th_registry.start()
 
-        app.run(debug=True, host='127.0.0.1', port=7001, use_reloader=False, passthrough_errors=True)
+        app.run(debug=False, host='0.0.0.0', port=7001, use_reloader=False, passthrough_errors=True)
     except Exception as e:
         print(e)
         mem.keep_running = False
