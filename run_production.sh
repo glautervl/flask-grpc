@@ -1,0 +1,1 @@
+FLASK_APP="app.py" waitress-serve --call 'app:main'
