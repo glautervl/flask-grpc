@@ -83,7 +83,7 @@ const isMainNetwork = () => {
 isMainNetwork()
     .then(() => {
         document.getElementById("approveTokens").disabled = true;
-        document.getElementById("approveTokens").value = "Please, wait...";
+        document.getElementById("approveTokens").textContent = "Please, wait...";
         window.agent_address =  document.getElementById("agent_address").value;
         console.log("agent_address: ", window.agent_address);
         window.agent = window.web3.eth.contract(agentAbi).at(window.agent_address);
@@ -115,7 +115,7 @@ isMainNetwork()
                     console.log("jobAddress: ", window.jobAddress);
                     window.jobPrice = last_event["args"]["jobPrice"]["c"][0];
                     console.log("jobPrice: ", window.jobPrice);
-                    document.getElementById("approveTokens").value = "ApproveTokens";
+                    document.getElementById("approveTokens").textContent = "ApproveTokens";
                     document.getElementById("approveTokens").disabled = false;
                     $.post("/get_events", {
                         blockNumber: window.blockNumber,
@@ -127,7 +127,7 @@ isMainNetwork()
                 }
             }
             else {
-                document.getElementById("approveTokens").value = "JobFail!";
+                document.getElementById("approveTokens").textContent = "JobFail!";
             }
         });
     })

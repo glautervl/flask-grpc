@@ -94,17 +94,17 @@ def response_html(content):
     if type(content) == dict:
         ret += "<tr>"
         for k, v in content.items():
-            ret += "<th>" + str(k) + "</th>"
+            ret += "<th class=\"col-md-2\">" + str(k) + "</th>"
             if type(v) == dict:
                 ret += response_html(v)
             else:
                 if is_base64(str(v).encode()):
-                    ret += "<td><img src=\"data:image/png;base64, " + str(v) + "\" /></td>"
+                    ret += "<td class=\"col-md-6\"><img src=\"data:image/png;base64, " + str(v) + "\" /></td>"
                 else:
-                    ret += "<td>" + str(v) + "</td>"
+                    ret += "<td class=\"col-md-6\">" + str(v) + "</td>"
             ret += "</tr>"
     else:
-        ret += "<td>" + str(content) + "</td>"
+        ret += "<td class=\"col-md-6\">" + str(content) + "</td>"
     ret += "</tr>"
     return ret
 
@@ -145,6 +145,9 @@ def service():
     org_name = request.args.get("org")
     service_name = request.args.get("service")
 
+    if None in [org_name, service_name]:
+        return index()
+
     mem.spec_hash = get_spec_hash(org_name, service_name)
 
     service_spec = get_service_info(org_name, service_name)
@@ -184,6 +187,8 @@ def selected_service():
                                agent_address=mem.agent_address,
                                method=method,
                                method_info=method_info)
+    else:
+        return index()
 
 
 @app.route('/createJob', methods=['POST', 'GET'])
@@ -217,6 +222,8 @@ def create_job():
                                agent_address=mem.agent_address,
                                method=method,
                                method_info=method_info)
+    else:
+        return index()
 
 
 @app.route('/approveTokens', methods=['POST', 'GET'])
@@ -252,6 +259,8 @@ def approve_tokens():
                                agent_address=mem.agent_address,
                                method=method,
                                method_info=method_info)
+    else:
+        return index()
 
 
 @app.route('/fundJob', methods=['POST', 'GET'])
@@ -287,6 +296,8 @@ def fund_job():
                                agent_address=mem.agent_address,
                                method=method,
                                method_info=method_info)
+    else:
+        return index()
 
 
 @app.route('/callService', methods=['POST', 'GET'])
@@ -322,6 +333,8 @@ def call_service():
                                agent_address=mem.agent_address,
                                method=method,
                                method_info=method_info)
+    else:
+        return index()
 
 
 @app.route('/response', methods=['POST', 'GET'])
@@ -329,12 +342,20 @@ def response():
     if request.method == 'POST':
         org_name = request.form.get("org")
         service_name = request.form.get("service")
-        method = request.form.get("method")
         params = {}
         for k, v in request.form.items():
             if "params#" in k:
                 param = k.replace("params#", "")
                 params[param] = v
+        method = request.form.get("method")
+        service_spec = get_service_info(org_name, service_name)
+        method_info = get_method_info(method, service_spec)
+        tmp_method_info = []
+        for method_i in method_info:
+            l = method_i
+            l.append(params[method_i[1]])
+            tmp_method_info.append(l)
+        method_info = tmp_method_info
 
         res = request.form
         service_response = None
@@ -363,45 +384,50 @@ def response():
                                             json.dumps(params))
                 break
 
-        service_response = "<table border=\"1\">" + response_html(service_response) + "</table>"
+        if service_response != -1:
+            service_response = "<table class=\"table table-hover\">" + response_html(service_response) + "</table>"
 
         return render_template("response.html",
                                org_name=org_name,
                                service_name=service_name,
                                agent_address=mem.agent_address,
+                               method=method,
+                               method_info=method_info,
                                response=res,
                                service_response=service_response)
+    else:
+        return index()
 
 
-@app.route('/response', methods=['POST', 'GET'])
-def response_static():
-    if request.method == 'POST':
-        org_name = request.form.get("org")
-        service_name = request.form.get("service")
-        method = request.form.get("method")
-        params = {}
-        for k, v in request.form.items():
-            if "params#" in k:
-                param = k.replace("params#", "")
-                params[param] = v
-        agent_address = get_agent_address(org_name, service_name)
-        res = request.form
-        service_response = None
-        while not service_response:
-            print("agent_address: ", agent_address)
-            print("method: ", method)
-            print("params: ", json.dumps(params))
-            try:
-                service_response = call_service(agent_address, method, json.dumps(params))
-            except Exception as e:
-                print(e)
-                service_response = call_service(agent_address, method, json.dumps(params))
-                break
-        return render_template("response.html",
-                               org_name=org_name,
-                               service_name=service_name,
-                               response=res,
-                               service_response=service_response)
+# @app.route('/response', methods=['POST', 'GET'])
+# def response_static():
+#     if request.method == 'POST':
+#         org_name = request.form.get("org")
+#         service_name = request.form.get("service")
+#         method = request.form.get("method")
+#         params = {}
+#         for k, v in request.form.items():
+#             if "params#" in k:
+#                 param = k.replace("params#", "")
+#                 params[param] = v
+#         agent_address = get_agent_address(org_name, service_name)
+#         res = request.form
+#         service_response = None
+#         while not service_response:
+#             print("agent_address: ", agent_address)
+#             print("method: ", method)
+#             print("params: ", json.dumps(params))
+#             try:
+#                 service_response = call_service(agent_address, method, json.dumps(params))
+#             except Exception as e:
+#                 print(e)
+#                 service_response = call_service(agent_address, method, json.dumps(params))
+#                 break
+#         return render_template("response.html",
+#                                org_name=org_name,
+#                                service_name=service_name,
+#                                response=res,
+#                                service_response=service_response)
 
 
 @app.route('/get_receipt', methods=['POST'])
@@ -447,7 +473,7 @@ def get_signature():
                                receipt=mem.receipt)
 
 
-if __name__ == "__main__":
+def main():
     try:
         mem.keep_running = True
         th_registry = Thread(target=start_registry_cli, args=())
@@ -458,3 +484,7 @@ if __name__ == "__main__":
     except Exception as e:
         print(e)
         mem.keep_running = False
+
+
+if __name__ == "__main__":
+    main()

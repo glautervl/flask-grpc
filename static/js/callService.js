@@ -84,8 +84,25 @@ const isMainNetwork = () => {
 
 isMainNetwork()
     .then(() => {
+        console.log("jobAddress: ", window.jobAddress);
+        console.log("jobPrice: ", window.jobPrice);
+        window.job_state = -1;
+        window.job_contract.state({from: window.user_account},
+            function (error, jobState) {
+                if (!error) {
+                    window.jobState = jobState;
+                    console.log("jobState: ", window.jobState);
+                } else console.log("Error jobState: ", error);
+
+            }
+        );
+    })
+    .then((state) => {
+        console.log("jobState: ", state);
+    })
+    .then(() => {
         document.getElementById("getResponse").disabled = true;
-        document.getElementById("getResponse").value = "Please, wait...";
+        document.getElementById("getResponse").textContent = "Please, wait...";
         console.log("jobAddress: ", window.jobAddress);
         console.log("jobPrice: ", window.jobPrice);
         window.user_account =  document.getElementById("user_address").textContent;
@@ -110,8 +127,11 @@ isMainNetwork()
                     let bcSum = md5(bcBytes);
                     let sigPayload = bcSum === oldSigAgentBytecodeChecksum ? Eth.keccak256(addressBytes) : Eth.fromUtf8(window.jobAddress);
 
+                    console.log("jobState: ", window.jobState);
                     console.log("user_account: ", window.user_account);
                     console.log("sigPayload: ", sigPayload);
+                    //var eth_sign = new Eth(window.web3.currentProvider);
+                    //eth_sign.personal_sign(sigPayload, window.user_account,
                     window.web3.personal.sign(sigPayload, window.user_account,
                         function (error, signature) {
                             if (!error) {
@@ -122,69 +142,33 @@ isMainNetwork()
                                 window.agent.validateJobInvocation(window.jobAddress, v, r, s, {from: window.user_account},
                                     function (error, validateJob) {
                                         if (!error) {
-                                            console.log('job invocation validation returned: ' + validateJob);
-                                            if(validateJob) {
-                                                // If agent is using old bytecode, put auth in params object. Otherwise, put auth in headers as new daemon
-                                                // must be in use to support new signature scheme
-                                                let callHeaders = bcSum === oldSigAgentBytecodeChecksum ? {} : {
-                                                    "snet-job-address": window.jobAddress,
-                                                    "snet-job-signature": signature
-                                                };
+                                            console.log('validateJobInvocation: ' + validateJob);
+                                            // If agent is using old bytecode, put auth in params object. Otherwise, put auth in headers as new daemon
+                                            // must be in use to support new signature scheme
+                                            let callHeaders = bcSum === oldSigAgentBytecodeChecksum ? {} : {
+                                                "snet-job-address": window.jobAddress,
+                                                "snet-job-signature": signature
+                                            };
 
-                                                let addlParams = bcSum === oldSigAgentBytecodeChecksum ? {
-                                                    job_address: window.jobAddress,
-                                                    job_signature: signature
-                                                } : {};
+                                            let addlParams = bcSum === oldSigAgentBytecodeChecksum ? {
+                                                job_address: window.jobAddress,
+                                                job_signature: signature
+                                            } : {};
 
-                                                console.log("callHeaders: ", callHeaders);
-                                                console.log("addlParams: ", addlParams);
-                                                console.log("SIGNATURE: ", signature);
+                                            console.log("callHeaders: ", callHeaders);
+                                            console.log("addlParams: ", addlParams);
+                                            console.log("SIGNATURE: ", signature);
 
-                                                $.post("/get_signature", {
-                                                    job_address: window.jobAddress,
-                                                    job_signature: signature
-                                                });
+                                            $.post("/get_signature", {
+                                                job_address: window.jobAddress,
+                                                job_signature: signature
+                                            });
 
-                                                document.getElementById("getResponse").disabled = false;
-                                                document.getElementById("getResponse").value = "GetResponse";
-                                            } else {
-                                                // Trying again...
-                                                console.log("validateJobInvocation False. Trying again...");
-                                                window.agent.validateJobInvocation(window.jobAddress, v, r, s, {from: window.user_account},
-                                                    function (error, validateJob) {
-                                                        if (!error) {
-                                                            console.log('job invocation validation returned: ' + validateJob);
-                                                            // If agent is using old bytecode, put auth in params object. Otherwise, put auth in headers as new daemon
-                                                            // must be in use to support new signature scheme
-                                                            let callHeaders = bcSum === oldSigAgentBytecodeChecksum ? {} : {
-                                                                "snet-job-address": window.jobAddress,
-                                                                "snet-job-signature": signature
-                                                            };
-
-                                                            let addlParams = bcSum === oldSigAgentBytecodeChecksum ? {
-                                                                job_address: window.jobAddress,
-                                                                job_signature: signature
-                                                            } : {};
-
-                                                            console.log("callHeaders: ", callHeaders);
-                                                            console.log("addlParams: ", addlParams);
-                                                            console.log("SIGNATURE: ", signature);
-
-                                                            $.post("/get_signature", {
-                                                                job_address: window.jobAddress,
-                                                                job_signature: signature
-                                                            });
-
-                                                            document.getElementById("getResponse").disabled = false;
-                                                            document.getElementById("getResponse").value = "GetResponse";
-                                                        } else {
-                                                            document.getElementById("getResponse").value = "JobFail!";
-                                                            console.log("Error validateJobInvocation: ", error);
-                                                        }
-                                                    });
-                                            }
+                                            document.getElementById("getResponse").disabled = false;
+                                            if(validateJob) document.getElementById("getResponse").textContent = "GetResponse";
+                                            else document.getElementById("getResponse").textContent = "JobFail";
                                         } else {
-                                            document.getElementById("getResponse").value = "JobFail!";
+                                            document.getElementById("getResponse").textContent = "JobFail";
                                             console.log("Error validateJobInvocation: ", error);
                                         }
                                     });

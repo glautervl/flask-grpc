@@ -89,7 +89,7 @@ const isMainNetwork = () => {
 isMainNetwork()
     .then(() => {
         document.getElementById("fundJob").disabled = true;
-        document.getElementById("fundJob").value = "Please, wait...";
+        document.getElementById("fundJob").textContent = "Please, wait...";
         console.log("jobAddress: ", window.jobAddress);
         console.log("jobPrice: ", window.jobPrice);
         window.user_account =  document.getElementById("user_address").textContent;
@@ -119,7 +119,7 @@ isMainNetwork()
                     console.log("jobAddress: ", window.jobAddress);
                     window.jobPrice = last_event["args"]["value"]["c"][0];
                     console.log("jobPrice: ", window.jobPrice);
-                    document.getElementById("fundJob").value = "FundJob";
+                    document.getElementById("fundJob").textContent = "FundJob";
                     document.getElementById("fundJob").disabled = false;
                     $.post("/get_events", {
                         blockNumber: window.blockNumber,
@@ -131,7 +131,7 @@ isMainNetwork()
                 }
             }
             else {
-                document.getElementById("fundJob").value = "JobFail!";
+                document.getElementById("fundJob").textContent = "JobFail!";
             }
         });
     })

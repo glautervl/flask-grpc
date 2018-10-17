@@ -16,15 +16,47 @@
           </div>
           <div class="box-footer no-padding">
             <ul class="nav nav-stacked">
-              <table border="1">
+              <table class="table table-hover">
               {% for key, value in response.items() %}
                  <tr>
-                      <th> {{ key }} </th>
-                      <td> {{ value }} </td>
+                      <th class="col-md-2"> {{ key }} </th>
+                      <td class="col-md-6"> {{ value }} </td>
                  </tr>
               {% endfor %}
               </table>
-              <br>{{ service_response|safe }}<br>
+                {% if service_response != -1 %}
+                    <br>{{ service_response|safe }}<br>
+                {% else %}
+                    <table class="table table-hover">
+                         <tr>
+                              <th class="col-md-2"> Error </th>
+                              <td class="col-md-6"> Job invocation not valid. </td>
+                         </tr>
+                         <tr>
+                              <th class="col-md-2"> Error </th>
+                              <td class="col-md-6"> Wait a few seconds and try again! </td>
+                         </tr>
+                    </table>
+                    <br>
+                    <form action = "createJob" method = "POST">
+                        <table class="table table-hover">
+                            <tr>
+                              <th class="col-md-2">Method:</th>
+                              <td class="col-md-6">{{ method }}<input type="hidden" name="method" value={{ method }} ></td>
+                            </tr>
+                            {% for method_t in method_info %}
+                            <tr>
+                                <th class="col-md-2">[{{ method_t[0] }}] {{ method_t[1] }}:</th>
+                                <td class="col-md-6"><input type="text" name="params#{{ method_t[1] }}" value="{{method_t[3]}}" /></td>
+                            </tr>
+                            {% endfor %}
+                        </table>
+                        <input type="hidden" name="agent_address" id="agent_address" value={{ agent_address }} >
+                        <input type="hidden" name="org" value={{ org_name }} >
+                        <input type="hidden" name="service" value={{ service_name }} >
+                        <button type="submit" class="btn btn-primary" id="tryAgain">TryAgain</button>
+                    </form>
+                {% endif %}
             </ul>
           </div>
         </div>

@@ -17,23 +17,22 @@
         <div class="box-footer no-padding">
           <ul class="nav nav-stacked">
             <form action = "response" method = "POST">
-                <table border="1">
+                <table class="table table-hover">
                     <tr>
-                      <th>Method:</th>
-                      <td>{{ method }}<input type="hidden" name="method" value={{ method }} ></td>
+                      <th class="col-md-2">Method:</th>
+                      <td class="col-md-6">{{ method }}<input type="hidden" name="method" value={{ method }} ></td>
                     </tr>
                     {% for method_t in method_info %}
                     <tr>
-                        <th>[{{ method_t[0] }}] {{ method_t[1] }}:</th>
-                        <td><input type="text" name="params#{{ method_t[1] }}" value="{{method_t[3]}}" /></td>
+                        <th class="col-md-2">[{{ method_t[0] }}] {{ method_t[1] }}:</th>
+                        <td class="col-md-6"><input type="text" name="params#{{ method_t[1] }}" value="{{method_t[3]}}" /></td>
                     </tr>
                     {% endfor %}
                 </table>
                 <input type="hidden" name="agent_address" id="agent_address" value={{ agent_address }} >
                 <input type="hidden" name="org" value={{ org_name }} >
                 <input type="hidden" name="service" value={{ service_name }} >
-                <br>
-                <p><input type="submit" value="GetResponse" id="getResponse" /></p>
+                <button type="submit" class="btn btn-primary" id="getResponse">GetResponse</button>
             </form>
             <br>
           </ul>
@@ -58,21 +57,21 @@
         <div class="box-footer no-padding">
             <div class="box-footer no-padding">
                 <ul class="nav nav-stacked">
-                    <table>
+                    <table class="table table-hover">
                         {% for key, value in events.items() %}
                             <tr>
-                                <th> {{ key }} </th>
-                                <td><span class="{{ key }}">{{ value }}</span></td>
+                                <th class="col-md-2"> {{ key }} </th>
+                                <td class="col-md-6"><span class="{{ key }}">{{ value }}</span></td>
                             </tr>
                         {% endfor %}
                     </table>
                 </ul>
                 <ul class="nav nav-stacked">
-                    <table>
+                    <table class="table table-hover">
                         {% for key, value in receipt.items() %}
                             <tr>
-                                <th> {{ key }} </th>
-                                <td> {{ value }} </td>
+                                <th class="col-md-2"> {{ key }} </th>
+                                <td class="col-md-6"> {{ value }} </td>
                             </tr>
                         {% endfor %}
                     </table>

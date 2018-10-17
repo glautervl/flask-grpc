@@ -87,7 +87,7 @@ const isMainNetwork = () => {
 isMainNetwork()
     .then(() => {
         document.getElementById("callService").disabled = true;
-        document.getElementById("callService").value = "Please, wait...";
+        document.getElementById("callService").textContent = "Please, wait...";
         console.log("jobAddress: ", window.jobAddress);
         console.log("jobPrice: ", window.jobPrice);
         window.user_account =  document.getElementById("user_address").textContent;
@@ -113,7 +113,7 @@ isMainNetwork()
             if(last_event) {
                 if(window.transactionHash === last_event["transactionHash"]) {
                     console.log("jobAddress: ", window.jobAddress);
-                    document.getElementById("callService").value = "CallService";
+                    document.getElementById("callService").textContent = "CallService";
                     document.getElementById("callService").disabled = false;
                     $.post("/get_events", {
                         blockNumber: window.blockNumber,
@@ -125,7 +125,7 @@ isMainNetwork()
                 }
             }
             else {
-                document.getElementById("callService").value = "JobFail!";
+                document.getElementById("callService").textContent = "JobFail!";
             }
         });
     })

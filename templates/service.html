@@ -17,12 +17,12 @@
             </div>
             <div class="box-footer no-padding">
               <ul class="nav nav-stacked">
-                  <table>
+                  <table class="table table-hover">
                     {% for key, value in service_info.items() %}
                       {% if key != 'service_spec' %}
                        <tr>
-                            <th> {{ key }} </th>
-                            <td> {{ value }} </td>
+                            <th class="col-md-2"> {{ key }} </th>
+                            <td class="col-md-6"> {{ value }} </td>
                        </tr>
                       {% endif %}
                     {% endfor %}
@@ -31,12 +31,12 @@
                   {% for service_k, service_v in service_info.items() %}
                     {% if service_k == 'service_spec' %}
                         {% for k1, v1 in service_v.items() %}
-                                    <table border="1">
+                                    <table class="table table-hover">
                                     {% for k2, v2 in v1.items() %}
                                         {% if k2 == 'method' %}
                                           <tr>
-                                              <th>Method:</th>
-                                              <td>{{ v2 }}</td>
+                                              <th class="col-md-2">Method:</th>
+                                              <td class="col-md-6">{{ v2 }}</td>
                                           </tr>
                                         {% endif %}
                                         {% if k2 == 'request' %}
@@ -44,8 +44,8 @@
                                                 {% for k4, v4 in v3.items() %}
                                                     {% if k4 == 'params' %}
                                                         <tr>
-                                                            <th>Params:</th>
-                                                            <td>
+                                                            <th class="col-md-2">Params:</th>
+                                                            <td class="col-md-6">
                                                             {% for k5, v5 in v4.items() %}
                                                                 {{ k5 }},
                                                             {% endfor %}
@@ -56,15 +56,14 @@
                                             {% endfor %}
                                         {% endif %}
                                     {% endfor %}
-                                    </table>
+                                    </table class="table table-hover">
                                     {% for k2, v2 in v1.items() %}
                                         {% if k2 == 'method' %}
                                           <form action = "selected_service" method = "POST">
                                               <input type="hidden" name="org" value={{ org_name }} >
                                               <input type="hidden" name="service" value={{ service_name }} >
                                               <input type="hidden" name="method" value={{ v2 }} >
-                                              <p></p>
-                                              <input type="submit" value="Select" />
+                                              <button type="submit" class="btn btn-primary">Select</button>
                                           </form>
                                           <br>
                                         {% endif %}

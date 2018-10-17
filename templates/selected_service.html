@@ -17,23 +17,22 @@
         <div class="box-footer no-padding">
           <ul class="nav nav-stacked">
               <form action="createJob" method="POST">
-                <table border="1">
+                <table class="table table-hover">
                     <tr>
-                      <th>Method:</th>
-                      <td>{{ method }}<input type="hidden" name="method" value={{ method }} ></td>
+                      <th class="col-md-2">Method:</th>
+                      <td class="col-md-6">{{ method }}<input type="hidden" name="method" value={{ method }} ></td>
                     </tr>
                     {% for method_t in method_info %}
                     <tr>
-                        <th>[{{ method_t[0] }}] {{ method_t[1] }}:</th>
-                        <td><input type="text" name="params#{{ method_t[1] }}" /></td>
+                        <th class="col-md-2">[{{ method_t[0] }}] {{ method_t[1] }}:</th>
+                        <td class="col-md-6"><input type="text" name="params#{{ method_t[1] }}" /></td>
                     </tr>
                     {% endfor %}
                 </table>
                 <input type="hidden" name="agent_address" id="agent_address" value={{ agent_address }} >
                 <input type="hidden" name="org" value={{ org_name }} >
                 <input type="hidden" name="service" value={{ service_name }} >
-                <p></p>
-                <p><input type="submit" value="Create Job" /></p>
+                <button type="submit" class="btn btn-primary">CreateJob</button>
               </form>
               <br>
           </ul>
