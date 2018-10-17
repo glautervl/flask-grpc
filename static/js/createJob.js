@@ -112,24 +112,26 @@ isMainNetwork()
     .then((receipt) => {
         return waitForEvent(agent, function (eventResult) {
             console.log("[createJob] eventResult:", eventResult);
-            var last_event = eventResult[eventResult.length-1];
-            if(last_event) {
-                if(window.transactionHash === last_event["transactionHash"]) {
-                    window.consumer = last_event["args"]["consumer"];
-                    console.log("consumer: ", window.consumer);
-                    window.jobAddress = last_event["args"]["job"];
-                    console.log("jobAddress: ", window.jobAddress);
-                    window.jobPrice = last_event["args"]["jobPrice"]["c"][0];
-                    console.log("jobPrice: ", window.jobPrice);
-                    document.getElementById("approveTokens").textContent = "ApproveTokens";
-                    document.getElementById("approveTokens").disabled = false;
-                    $.post("/get_events", {
-                        blockNumber: window.blockNumber,
-                        transactionHash: window.transactionHash,
-                        consumer: window.consumer,
-                        jobAddress: window.jobAddress,
-                        jobPrice: window.jobPrice
-                    });
+            if(eventResult) {
+                for(let i=0; i<eventResult.length; i++) {
+                    var last_event = eventResult[i];
+                    if (window.transactionHash === last_event["transactionHash"]) {
+                        window.consumer = last_event["args"]["consumer"];
+                        console.log("consumer: ", window.consumer);
+                        window.jobAddress = last_event["args"]["job"];
+                        console.log("jobAddress: ", window.jobAddress);
+                        window.jobPrice = last_event["args"]["jobPrice"]["c"][0];
+                        console.log("jobPrice: ", window.jobPrice);
+                        document.getElementById("approveTokens").textContent = "ApproveTokens";
+                        document.getElementById("approveTokens").disabled = false;
+                        $.post("/get_events", {
+                            blockNumber: window.blockNumber,
+                            transactionHash: window.transactionHash,
+                            consumer: window.consumer,
+                            jobAddress: window.jobAddress,
+                            jobPrice: window.jobPrice
+                        });
+                    }
                 }
             }
             else {

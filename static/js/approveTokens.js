@@ -117,24 +117,26 @@ isMainNetwork()
     .then((receipt) => {
         return waitForEvent(window.token_contract, function (eventResult) {
             console.log("[approveTokens] eventResult:", eventResult);
-            var last_event = eventResult[eventResult.length-1];
-            if(last_event) {
-                if(window.transactionHash === last_event["transactionHash"]) {
-                    window.consumer = last_event["args"]["spender"];
-                    console.log("consumer: ", window.consumer);
-                    window.owner = last_event["args"]["owner"];
-                    console.log("jobAddress: ", window.jobAddress);
-                    window.jobPrice = last_event["args"]["value"]["c"][0];
-                    console.log("jobPrice: ", window.jobPrice);
-                    document.getElementById("fundJob").textContent = "FundJob";
-                    document.getElementById("fundJob").disabled = false;
-                    $.post("/get_events", {
-                        blockNumber: window.blockNumber,
-                        transactionHash: window.transactionHash,
-                        consumer: window.consumer,
-                        jobAddress: window.jobAddress,
-                        jobPrice: window.jobPrice
-                    });
+            if(eventResult) {
+                for(let i=0; i<eventResult.length; i++) {
+                    var last_event = eventResult[i];
+                    if (window.transactionHash === last_event["transactionHash"]) {
+                        window.consumer = last_event["args"]["spender"];
+                        console.log("consumer: ", window.consumer);
+                        window.owner = last_event["args"]["owner"];
+                        console.log("jobAddress: ", window.jobAddress);
+                        window.jobPrice = last_event["args"]["value"]["c"][0];
+                        console.log("jobPrice: ", window.jobPrice);
+                        document.getElementById("fundJob").textContent = "FundJob";
+                        document.getElementById("fundJob").disabled = false;
+                        $.post("/get_events", {
+                            blockNumber: window.blockNumber,
+                            transactionHash: window.transactionHash,
+                            consumer: window.consumer,
+                            jobAddress: window.jobAddress,
+                            jobPrice: window.jobPrice
+                        });
+                    }
                 }
             }
             else {

@@ -115,20 +115,22 @@ isMainNetwork()
     .then((receipt) => {
         console.log(receipt);
         return waitForEvent(window.job_contract, function (eventResult) {
-            console.log("eventResult:", eventResult);
-            var last_event = eventResult[eventResult.length-1];
-            if(last_event) {
-                if(window.transactionHash === last_event["transactionHash"]) {
-                    console.log("jobAddress: ", window.jobAddress);
-                    document.getElementById("callService").textContent = "CallService";
-                    document.getElementById("callService").disabled = false;
-                    $.post("/get_events", {
-                        blockNumber: window.blockNumber,
-                        transactionHash: window.transactionHash,
-                        consumer: window.consumer,
-                        jobAddress: window.jobAddress,
-                        jobPrice: window.jobPrice
-                    });
+            console.log("[fundJob] eventResult:", eventResult);
+            if(eventResult) {
+                for(let i=0; i<eventResult.length; i++) {
+                    var last_event = eventResult[i];
+                    if (window.transactionHash === last_event["transactionHash"]) {
+                        console.log("jobAddress: ", window.jobAddress);
+                        document.getElementById("callService").textContent = "CallService";
+                        document.getElementById("callService").disabled = false;
+                        $.post("/get_events", {
+                            blockNumber: window.blockNumber,
+                            transactionHash: window.transactionHash,
+                            consumer: window.consumer,
+                            jobAddress: window.jobAddress,
+                            jobPrice: window.jobPrice
+                        });
+                    }
                 }
             }
             else {
