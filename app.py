@@ -119,6 +119,7 @@ def index():
         for k, v in orgs.items():
             len_services += len(v)
         return render_template("index.html",
+                               user_account=mem.user_account,
                                orgs=orgs,
                                len_orgs=len_orgs,
                                len_services=len_services)
@@ -135,6 +136,7 @@ def reload():
         for _, _ in services.items():
             len_services += 1
     return render_template("index.html",
+                           user_account=mem.user_account,
                            org_json=mem.organizations_dict,
                            len_orgs=len_orgs,
                            len_services=len_services)
@@ -163,6 +165,7 @@ def service():
     print("[service] spec_hash: ", mem.spec_hash)
 
     return render_template("service.html",
+                           user_account=mem.user_account,
                            org_name=org_name,
                            service_name=service_name,
                            agent_address=mem.agent_address,
@@ -182,6 +185,7 @@ def selected_service():
         print("[selected_service] method_info: ", method_info)
 
         return render_template("selected_service.html",
+                               user_account=mem.user_account,
                                org_name=org_name,
                                service_name=service_name,
                                agent_address=mem.agent_address,
@@ -216,6 +220,7 @@ def create_job():
         print("[create_job] method_info: ", method_info)
 
         return render_template("createJob.html",
+                               user_account=mem.user_account,
                                create_job_version=create_job_version,
                                org_name=org_name,
                                service_name=service_name,
@@ -251,6 +256,7 @@ def approve_tokens():
         print("[approveTokens] method_info: ", method_info)
 
         return render_template("approveTokens.html",
+                               user_account=mem.user_account,
                                approve_tokens_version=approve_tokens_version,
                                receipt=mem.receipt,
                                events=mem.events,
@@ -288,6 +294,7 @@ def fund_job():
         print("[fund_job] method_info: ", method_info)
 
         return render_template("fundJob.html",
+                               user_account=mem.user_account,
                                fund_job_version=fund_job_version,
                                receipt=mem.receipt,
                                events=mem.events,
@@ -325,6 +332,7 @@ def call_service():
         print("[call_service] method_info: ", method_info)
 
         return render_template("callService.html",
+                               user_account=mem.user_account,
                                call_service_version=call_service_version,
                                receipt=mem.receipt,
                                events=mem.events,
@@ -388,6 +396,7 @@ def response():
             service_response = "<table class=\"table table-hover\">" + response_html(service_response) + "</table>"
 
         return render_template("response.html",
+                               user_account=mem.user_account,
                                org_name=org_name,
                                service_name=service_name,
                                agent_address=mem.agent_address,
@@ -428,6 +437,17 @@ def response():
 #                                service_name=service_name,
 #                                response=res,
 #                                service_response=service_response)
+
+
+@app.route('/get_user_account', methods=['POST'])
+def get_user_account():
+    if request.method == 'POST':
+        print("============= GET ACCOUNT ================")
+        for k, v in request.form.items():
+            print(k, v)
+            if k == "user_account":
+                mem.user_account = v
+        return index()
 
 
 @app.route('/get_receipt', methods=['POST'])

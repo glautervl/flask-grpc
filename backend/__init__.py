@@ -29,7 +29,7 @@ class MemSingleton:
         # Job Invocation
         self.endpoint = ""
         self.spec_hash = ""
-        self.user_account = ""
+        self.user_account = "MetaMask is not enabled!"
         self.agent_address = ""
         self.job_address = ""
         self.job_price = 0

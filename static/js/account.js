@@ -26,8 +26,9 @@ window.addEventListener('load', async () => {
 function get_balances(){
     window.web3.eth.getAccounts(function (err, accounts) {
         if(accounts[0]) {
-            document.getElementById("user_address").innerHTML = accounts[0];
-            document.getElementById("user_address").value = accounts[0];
+            $.post( "/get_user_account", { user_account: accounts[0] });
+            document.getElementById("user_account").innerHTML = accounts[0];
+            document.getElementById("user_account").value = accounts[0];
             window.user_account = accounts[0];
             window.web3.eth.getBalance(accounts[0], function (err, balance) {
                 document.getElementById("eth_balance").innerHTML = window.web3.fromWei(balance, 'ether');
@@ -41,7 +42,7 @@ function get_balances(){
             });
             return accounts[0];
         }
-        else document.getElementById("user_address").innerHTML = 'MetaMask is not enabled!';
+        else document.getElementById("user_account").innerHTML = 'MetaMask is not enabled!';
         return null;
     });
 }

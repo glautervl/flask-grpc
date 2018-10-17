@@ -73,8 +73,8 @@ const createJob = (contract) => {
 function get_account(){
     window.web3.eth.getAccounts(function (err, accounts) {
         if(accounts[0]) {
-            document.getElementById("user_address").innerHTML = accounts[0];
-            document.getElementById("user_address").value = accounts[0];
+            document.getElementById("user_account").innerHTML = accounts[0];
+            document.getElementById("user_account").value = accounts[0];
             window.user_account = accounts[0];
             window.web3.eth.getBalance(accounts[0], function (err, balance) {
                 document.getElementById("eth_balance").innerHTML = window.web3.fromWei(balance, 'ether');
@@ -88,7 +88,7 @@ function get_account(){
             });
             return accounts[0];
         }
-        else document.getElementById("user_address").innerHTML = 'MetaMask is not enabled!';
+        else document.getElementById("user_account").innerHTML = 'MetaMask is not enabled!';
     });
 }
 
@@ -101,7 +101,7 @@ const isMainNetwork = () => {
             }
             netId === '42' ? resolve() : reject('not kovan network');
             get_account();
-            window.user_account =  document.getElementById("user_address").textContent;
+            window.user_account =  document.getElementById("user_account").textContent;
         });
     });
 };
@@ -116,7 +116,7 @@ isMainNetwork()
         console.log("user_account: ", window.user_account);
         if (window.user_account.includes("MetaMask")){
             document.getElementById("approveTokens").value = "MetaMask Disabled!";
-            window.user_account =  document.getElementById("user_address").value;
+            window.user_account =  document.getElementById("user_account").value;
             console.log("user_account: ", window.user_account);
         } else return createJob(agent);
     })
