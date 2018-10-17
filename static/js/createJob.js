@@ -111,7 +111,6 @@ isMainNetwork()
     })
     .then((receipt) => {
         return waitForEvent(agent, function (eventResult) {
-            console.log("[createJob] eventResult:", eventResult);
             if(eventResult) {
                 for(let i=0; i<eventResult.length; i++) {
                     var last_event = eventResult[i];
@@ -136,6 +135,7 @@ isMainNetwork()
                 }
             }
             else {
+                console.log("[createJob] No eventResult!");
                 document.getElementById("approveTokens").textContent = "JobFail!";
             }
         });

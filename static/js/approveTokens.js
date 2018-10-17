@@ -116,7 +116,6 @@ isMainNetwork()
     })
     .then((receipt) => {
         return waitForEvent(window.token_contract, function (eventResult) {
-            console.log("[approveTokens] eventResult:", eventResult);
             if(eventResult) {
                 for(let i=0; i<eventResult.length; i++) {
                     var last_event = eventResult[i];
@@ -141,6 +140,7 @@ isMainNetwork()
                 }
             }
             else {
+                console.log("[approveTokens] No eventResult!");
                 document.getElementById("fundJob").textContent = "JobFail!";
             }
         });

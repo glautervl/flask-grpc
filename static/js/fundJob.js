@@ -115,7 +115,6 @@ isMainNetwork()
     .then((receipt) => {
         console.log(receipt);
         return waitForEvent(window.job_contract, function (eventResult) {
-            console.log("[fundJob] eventResult:", eventResult);
             if(eventResult) {
                 for(let i=0; i<eventResult.length; i++) {
                     var last_event = eventResult[i];
@@ -135,6 +134,7 @@ isMainNetwork()
                 }
             }
             else {
+                console.log("[fundJob] No eventResult!");
                 document.getElementById("callService").textContent = "JobFail!";
             }
         });
