@@ -47,6 +47,7 @@ function get_account(){
             document.getElementById("user_account").innerHTML = accounts[0];
             document.getElementById("user_account").value = accounts[0];
             window.user_account = accounts[0];
+            console.log("user_account[1]: ", window.user_account);
             window.web3.eth.getBalance(accounts[0], function (err, balance) {
                 document.getElementById("eth_balance").innerHTML = window.web3.fromWei(balance, 'ether');
             });
@@ -72,7 +73,6 @@ const isMainNetwork = () => {
             }
             netId === '42' ? resolve() : reject('not kovan network');
             get_account();
-            window.user_account =  document.getElementById("user_account").textContent;
             getLatestBlock();
         });
     });
@@ -95,10 +95,9 @@ isMainNetwork()
 
             }
         );
-        console.log("user_account: ", window.user_account);
         if (window.user_account.includes("MetaMask")) {
             window.user_account = document.getElementById("user_account").value;
-            console.log("user_account: ", window.user_account);
+            console.log("user_account[2]: ", window.user_account);
             if (!window.user_account) document.getElementById("getResponse").textContent = "MetaMask is not enabled";
         }
     })
