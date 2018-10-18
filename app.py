@@ -1,5 +1,6 @@
 from flask import Flask, render_template, session, request
 
+import os
 import sys
 import json
 import base64
@@ -12,6 +13,9 @@ sys.path.append(str(app_folder.joinpath("backend")))
 
 from backend import mem, update_organization_dict, start_registry_cli, call_api
 
+
+# For protobuf
+os.environ["PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION"] = "python"
 
 app = Flask(__name__)
 app.config.from_object('config')
