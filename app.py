@@ -430,7 +430,7 @@ def response():
                                             spec_hash[0],
                                             method,
                                             json.dumps(params))
-                if service_response == -1:
+                if not service_name or service_response == -1:
                     raise Exception
             except Exception as e:
                 print(e)

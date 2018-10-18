@@ -1,6 +1,5 @@
 import grpc
 import json
-import requests
 import traceback
 from google.protobuf import json_format
 from io import StringIO
@@ -88,9 +87,10 @@ def call(job_address, job_signature, endpoint, spec_hash, method, params_string)
             if response_class is None:
                 response_class = getattr(mod, response_name, None)
 
+        mods = None
         if None in [stub_class, request_class, response_class]:
             print("Failed to load service spec")
-            return None
+            return -1
 
         channel = grpc.insecure_channel(endpoint.replace("https://", "", 1).replace("http://", "", 1))
 
