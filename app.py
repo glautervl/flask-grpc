@@ -123,7 +123,7 @@ def index():
         for k, v in orgs.items():
             len_services += len(v)
 
-        user_account = session.get("user_account", None)
+        user_account = session.get("user_account", "")
         print("[index] user_account: ", user_account)
 
         return render_template("index.html",
@@ -144,7 +144,7 @@ def reload():
         for _, _ in services.items():
             len_services += 1
 
-    user_account = session.get("user_account", None)
+    user_account = session.get("user_account", "")
     print("[reload] user_account: ", user_account)
 
     return render_template("index.html",
@@ -166,7 +166,7 @@ def service():
     spec_hash = get_spec_hash(org_dict, org_name, service_name)
     service_spec, agent_address, endpoint = get_service_info(org_dict, org_name, service_name)
 
-    user_account = session.get("user_account", None)
+    user_account = session.get("user_account", "")
     print("[service] user_account: ", user_account)
     print("[service] agent_address: ", agent_address)
     print("[service] endpoint: ", endpoint)
@@ -191,7 +191,7 @@ def selected_service():
         service_spec, agent_address, endpoint = get_service_info(org_dict, org_name, service_name)
         method_info = get_method_info(method, service_spec)
 
-        user_account = session.get("user_account", None)
+        user_account = session.get("user_account", "")
         print("[selected_service] user_account: ", user_account)
         print("[selected_service] agent_address: ", agent_address)
         print("[selected_service] method_info: ", method_info)
@@ -231,7 +231,7 @@ def create_job():
         method_info = tmp_method_info
         create_job_version = randint(1234,1234567)
 
-        user_account = session.get("user_account", None)
+        user_account = session.get("user_account", "")
         print("[create_job] user_account: ", user_account)
         print("[create_job] agent_address: ", agent_address)
         print("[create_job] method_info: ", method_info)
@@ -272,10 +272,10 @@ def approve_tokens():
         method_info = tmp_method_info
         approve_tokens_version = randint(1234, 1234567)
 
-        receipt = session.get("receipt", None)
-        events = session.get("events", None)
+        receipt = session.get("receipt", {})
+        events = session.get("events", {})
 
-        user_account = session.get("user_account", None)
+        user_account = session.get("user_account", "")
         print("[approveTokens] user_account: ", user_account)
         print("[approveTokens] agent_address: ", agent_address)
         print("[approveTokens] method_info: ", method_info)
@@ -318,10 +318,10 @@ def fund_job():
         method_info = tmp_method_info
         fund_job_version = randint(1234, 1234567)
 
-        receipt = session.get("receipt", None)
-        events = session.get("events", None)
+        receipt = session.get("receipt", {})
+        events = session.get("events", {})
 
-        user_account = session.get("user_account", None)
+        user_account = session.get("user_account", "")
         print("[fund_job] user_account: ", user_account)
         print("[fund_job] agent_address: ", agent_address)
         print("[fund_job] method_info: ", method_info)
@@ -364,10 +364,10 @@ def call_service():
         method_info = tmp_method_info
         call_service_version = randint(1234, 1234567)
 
-        receipt = session.get("receipt", None)
-        events = session.get("events", None)
+        receipt = session.get("receipt", {})
+        events = session.get("events", {})
 
-        user_account = session.get("user_account", None)
+        user_account = session.get("user_account", "")
         print("[call_service] user_account: ", user_account)
         print("[call_service] agent_address: ", agent_address)
         print("[call_service] method_info: ", method_info)
@@ -413,9 +413,9 @@ def response():
         res = request.form
         service_response = None
         while not service_response:
-            user_account = session.get("user_account", None)
-            job_address = session.get("job_address", None)
-            job_signature = session.get("job_signature", None)
+            user_account = session.get("user_account", "")
+            job_address = session.get("job_address", "")
+            job_signature = session.get("job_signature", "")
 
             print("[response] user_account: ", user_account)
             print("[response] agent_address: ", agent_address)
