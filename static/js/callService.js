@@ -64,6 +64,7 @@ function get_account(){
     });
 }
 
+get_account();
 const isMainNetwork = () => {
     return new Promise((resolve, reject) => {
         window.web3.version.getNetwork((err, netId) => {
@@ -72,7 +73,6 @@ const isMainNetwork = () => {
                 return;
             }
             netId === '42' ? resolve() : reject('not kovan network');
-            get_account();
             getLatestBlock();
         });
     });
@@ -95,11 +95,14 @@ isMainNetwork()
 
             }
         );
-        if (window.user_account.includes("MetaMask")) {
-            window.user_account = document.getElementById("user_account").value;
-            console.log("user_account[2]: ", window.user_account);
-            if (!window.user_account) document.getElementById("getResponse").textContent = "MetaMask is not enabled";
+
+        if(window.user_account) {
+            if (window.user_account.includes("MetaMask")) {
+                window.user_account = document.getElementById("user_account").value;
+                console.log("user_account[2]: ", window.user_account);
+            }
         }
+        if (!window.user_account) document.getElementById("getResponse").textContent = "MetaMask is not enabled";
     })
     .then((state) => {
         console.log("jobState: ", state);

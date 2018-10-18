@@ -106,6 +106,7 @@ function get_account(){
     });
 }
 
+get_account();
 const isMainNetwork = () => {
     return new Promise((resolve, reject) => {
         window.web3.version.getNetwork((err, netId) => {
@@ -114,7 +115,6 @@ const isMainNetwork = () => {
                 return;
             }
             netId === '42' ? resolve() : reject('not kovan network');
-            get_account();
             getLatestBlock();
         });
     });
@@ -126,11 +126,14 @@ isMainNetwork()
         document.getElementById("fundJob").textContent = "Please, wait...";
         console.log("jobAddress: ", window.jobAddress);
         console.log("jobPrice: ", window.jobPrice);
-        if (window.user_account.includes("MetaMask")){
-            window.user_account =  document.getElementById("user_account").value;
-            console.log("user_account[2]: ", window.user_account);
-            if (!window.user_account) document.getElementById("fundJob").textContent = "MetaMask is not enabled";
-        } else return approveTokens(window.token_contract);
+        if(window.user_account) {
+            if (window.user_account.includes("MetaMask")) {
+                window.user_account = document.getElementById("user_account").value;
+                console.log("user_account[2]: ", window.user_account);
+            }
+        }
+        if (!window.user_account) document.getElementById("fundJob").textContent = "MetaMask is not enabled";
+        else return approveTokens(window.token_contract);
     })
     .then((hash) => {
         if(hash) window.transactionHash = hash;

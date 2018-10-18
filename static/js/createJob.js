@@ -101,6 +101,7 @@ function get_account(){
     });
 }
 
+get_account();
 const isMainNetwork = () => {
     return new Promise((resolve, reject) => {
         window.web3.version.getNetwork((err, netId) => {
@@ -109,7 +110,6 @@ const isMainNetwork = () => {
                 return;
             }
             netId === '42' ? resolve() : reject('not kovan network');
-            get_account();
             getLatestBlock();
         });
     });
@@ -122,11 +122,14 @@ isMainNetwork()
         window.agent_address =  document.getElementById("agent_address").value;
         console.log("agent_address: ", window.agent_address);
         window.agent = window.web3.eth.contract(agentAbi).at(window.agent_address);
-        if (window.user_account.includes("MetaMask")){
-            window.user_account =  document.getElementById("user_account").value;
-            console.log("user_account[2]: ", window.user_account);
-            if (!window.user_account) document.getElementById("approveTokens").textContent = "MetaMask is not enabled";
-        } else return createJob(agent);
+        if(window.user_account) {
+            if (window.user_account.includes("MetaMask")) {
+                window.user_account = document.getElementById("user_account").value;
+                console.log("user_account[2]: ", window.user_account);
+            }
+        }
+        if (!window.user_account) document.getElementById("approveTokens").textContent = "MetaMask is not enabled";
+        else return createJob(agent);
     })
     .then((hash) => {
         if(hash) window.transactionHash = hash;
