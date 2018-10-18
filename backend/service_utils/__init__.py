@@ -87,9 +87,8 @@ def call(job_address, job_signature, endpoint, spec_hash, method, params_string)
             if response_class is None:
                 response_class = getattr(mod, response_name, None)
 
-        mods = None
         if None in [stub_class, request_class, response_class]:
-            print("Failed to load service spec")
+            print({"response": "[call] Failed to load service spec"})
             return -1
 
         channel = grpc.insecure_channel(endpoint.replace("https://", "", 1).replace("http://", "", 1))
@@ -102,7 +101,6 @@ def call(job_address, job_signature, endpoint, spec_hash, method, params_string)
         request = request_class()
         json_format.Parse(json.dumps(params), request, True)
 
-        print("Calling service...\n")
         response = call_fn(request, metadata=[("snet-job-address", job_address), ("snet-job-signature", job_signature)])
 
         return {"response": json.loads(json_format.MessageToJson(response, True, preserving_proto_field_name=True))}

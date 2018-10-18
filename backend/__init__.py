@@ -5,6 +5,7 @@ import subprocess
 import web3
 import json
 import hashlib
+from ast import literal_eval
 from pathlib import Path
 from configparser import ConfigParser, ExtendedInterpolation
 
@@ -22,6 +23,7 @@ class MemSingleton:
     def __init__(self):
         self.registry_folder = backend_path.joinpath("registry")
         self.registry_cli = "registry_cli.py"
+        self.call_cli = "call_cli.py"
         self.services_json_file = ""
         self.organizations_dict = {}
         self.keep_running = False
@@ -156,7 +158,17 @@ def update_organization_dict():
 
 
 def call_api(job_address, job_signature, endpoint, spec_hash, method, params):
-    response = call(job_address, job_signature, endpoint, spec_hash, method, params)
+    print("Calling with call-cli...")
+    cmd = [sys.executable,
+           mem.call_cli,
+           job_address,
+           job_signature,
+           endpoint,
+           spec_hash,
+           method,
+           params]
+    response = subprocess.check_output(cmd, cwd=backend_path)
+    response = literal_eval(response.decode())
     return response
 
 

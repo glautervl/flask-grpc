@@ -74,7 +74,6 @@ def import_grpc_modules(spec_hash):
     for p in codegen_dir.glob("*_pb2*"):
         m = importlib.import_module(p.name.replace(".py", ""))
         mods.append(m)
-    # sys.path.remove(str(codegen_dir))
     return mods
 
 
@@ -116,7 +115,7 @@ def get_descriptor(spec_hash, method=None):
                             response_name = m_desc.output_type.name
                             method_found = True
         if None in [service_name, request_name, response_name]:
-            print("Failed to load service spec")
+            print({"response": "[get_descriptor] Failed to load service spec"})
             return {}, [], None, None, None
         return services_json, mods, service_name, request_name, response_name
     except Exception as e:
