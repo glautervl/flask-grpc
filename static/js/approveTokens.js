@@ -13,24 +13,24 @@ function waitForReceipt(cb) {
   window.web3.eth.getTransactionReceipt(window.transactionHash, function (err, receipt) {
     if (err) {
       console.log(err);
-    }
-    if (receipt != null) {
-        if(receipt["blockNumber"] !== null) {
-            // Transaction went through
-            if (cb) {
-                cb(receipt);
+    } else {
+        if (receipt != null) {
+            if (receipt["blockNumber"] !== null) {
+                // Transaction went through
+                if (cb) {
+                    cb(receipt);
+                }
+            } else {
+                window.setTimeout(function () {
+                    waitForReceipt(cb);
+                }, 1000);
             }
         } else {
             window.setTimeout(function () {
                 waitForReceipt(cb);
             }, 1000);
         }
-    } else {
-        window.setTimeout(function () {
-            waitForReceipt(cb);
-        }, 1000);
     }
-
   });
 }
 
@@ -47,16 +47,16 @@ function waitForEvent(contract, cb){
     var event = contract.Approval({}, { fromBlock: window.blockNumber, toBlock: 'latest' }).get((err, eventResult) => {
         if (err) {
           console.log(err);
-        }
-        if (eventResult !== null && eventResult.length > 0)
-        {
-            if (cb) {
-                cb(eventResult);
-            }
         } else {
-            setTimeout(function () {
-                waitForEvent(contract, cb);
-            }, 1000);
+            if (eventResult !== null && eventResult.length > 0) {
+                if (cb) {
+                    cb(eventResult);
+                }
+            } else {
+                setTimeout(function () {
+                    waitForEvent(contract, cb);
+                }, 1000);
+            }
         }
     });
 }
@@ -129,9 +129,9 @@ isMainNetwork()
         console.log("jobPrice: ", window.jobPrice);
         console.log("user_account: ", window.user_account);
         if (window.user_account.includes("MetaMask")){
-            document.getElementById("fundJob").value = "MetaMask Disabled!";
             window.user_account =  document.getElementById("user_account").value;
             console.log("user_account: ", window.user_account);
+            if (!window.user_account) document.getElementById("fundJob").textContent = "MetaMask is not enabled";
         } else return approveTokens(window.token_contract);
     })
     .then((hash) => {

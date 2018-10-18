@@ -80,6 +80,9 @@ const isMainNetwork = () => {
 
 isMainNetwork()
     .then(() => {
+        document.getElementById("getResponse").disabled = true;
+        document.getElementById("getResponse").textContent = "Please, wait...";
+
         console.log("jobAddress: ", window.jobAddress);
         console.log("jobPrice: ", window.jobPrice);
         window.job_state = -1;
@@ -94,9 +97,9 @@ isMainNetwork()
         );
         console.log("user_account: ", window.user_account);
         if (window.user_account.includes("MetaMask")) {
-            document.getElementById("approveTokens").value = "MetaMask Disabled!";
             window.user_account = document.getElementById("user_account").value;
             console.log("user_account: ", window.user_account);
+            if (!window.user_account) document.getElementById("getResponse").textContent = "MetaMask is not enabled";
         }
     })
     .then((state) => {
