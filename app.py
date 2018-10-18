@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, session, request
 
 import sys
 import json
@@ -14,17 +14,27 @@ from backend import mem, update_organization_dict, start_registry_cli, call_api
 
 
 app = Flask(__name__)
-update_organization_dict()
+app.config.from_object('config')
 
 
-def get_service_info(target_org, target_service):
-    service_dict_list = []
-    for org_name, org_info in mem.organizations_dict.items():
+def get_service_info(org_dict, target_org, target_service):
+    service_spec = []
+    for org_name, org_info in org_dict.items():
         if org_name == target_org:
             for service_name, service_info in org_info.items():
                 if service_name == target_service:
-                    service_dict_list.append(service_info)
-    return service_dict_list
+                    service_spec.append(service_info)
+
+    agent_address = ""
+    endpoint = ""
+    if service_spec:
+        for k, v in service_spec[0].items():
+            if k == "agent_address":
+                agent_address = str(v).lower()
+            if k == "endpoint":
+                endpoint = v
+
+    return service_spec, agent_address, endpoint
 
 
 def get_method_info(method, service_spec):
@@ -49,13 +59,15 @@ def get_method_info(method, service_spec):
     return params
 
 
-def get_spec_hash(org, srv):
-    return mem.organizations_dict[org][srv]["spec_hash"]
+def get_spec_hash(org_dict, org, srv):
+    d = org_dict.get(org, None)
+    d = d.get(srv, None)
+    return d.get("spec_hash", None)
 
 
-def get_simple_json():
+def get_simple_json(org_dict):
     orgs = {}
-    for org_name, org_info in mem.organizations_dict.items():
+    for org_name, org_info in org_dict.items():
         orgs[org_name] = []
         for service_name, service_info in org_info.items():
             service_list = [service_name]
@@ -68,18 +80,6 @@ def get_simple_json():
                     service_list.append(v)
             orgs[org_name].append(service_list)
     return orgs
-
-
-def get_agent_address(target_org, target_service):
-    orgs = get_simple_json()
-    address = ""
-    for org_name, services_info in orgs.items():
-        if org_name == target_org:
-            for item in services_info:
-                if item[0] == target_service:
-                    address = item[1]
-                    break
-    return address
 
 
 def is_base64(s):
@@ -112,14 +112,18 @@ def response_html(content):
 @app.route('/')
 def index():
     try:
-        update_organization_dict()
-        orgs = get_simple_json()
+        org_dict = update_organization_dict()
+        orgs = get_simple_json(org_dict)
         len_services = 0
         len_orgs = len(orgs)
         for k, v in orgs.items():
             len_services += len(v)
+
+        user_account = session.get("user_account", None)
+        print("[index] user_account: ", user_account)
+
         return render_template("index.html",
-                               user_account=mem.user_account,
+                               user_account=user_account,
                                orgs=orgs,
                                len_orgs=len_orgs,
                                len_services=len_services)
@@ -129,15 +133,19 @@ def index():
 
 @app.route('/reload')
 def reload():
-    update_organization_dict()
-    len_orgs = len(mem.organizations_dict)
+    org_dict = update_organization_dict()
+    len_orgs = len(org_dict)
     len_services = 0
-    for _, services in mem.organizations_dict.items():
+    for _, services in org_dict.items():
         for _, _ in services.items():
             len_services += 1
+
+    user_account = session.get("user_account", None)
+    print("[reload] user_account: ", user_account)
+
     return render_template("index.html",
-                           user_account=mem.user_account,
-                           org_json=mem.organizations_dict,
+                           user_account=user_account,
+                           org_json=org_dict,
                            len_orgs=len_orgs,
                            len_services=len_services)
 
@@ -150,25 +158,21 @@ def service():
     if None in [org_name, service_name]:
         return index()
 
-    mem.spec_hash = get_spec_hash(org_name, service_name)
+    org_dict = update_organization_dict()
+    spec_hash = get_spec_hash(org_dict, org_name, service_name)
+    service_spec, agent_address, endpoint = get_service_info(org_dict, org_name, service_name)
 
-    service_spec = get_service_info(org_name, service_name)
-    if service_spec:
-        for k, v in service_spec[0].items():
-            if k == "agent_address":
-                mem.agent_address = str(v).lower()
-            if k == "endpoint":
-                mem.endpoint = v
-
-    print("[service] agent_address: ", mem.agent_address)
-    print("[service] endpoint: ", mem.endpoint)
-    print("[service] spec_hash: ", mem.spec_hash)
+    user_account = session.get("user_account", None)
+    print("[service] user_account: ", user_account)
+    print("[service] agent_address: ", agent_address)
+    print("[service] endpoint: ", endpoint)
+    print("[service] spec_hash: ", spec_hash)
 
     return render_template("service.html",
-                           user_account=mem.user_account,
+                           user_account=user_account,
                            org_name=org_name,
                            service_name=service_name,
-                           agent_address=mem.agent_address,
+                           agent_address=agent_address,
                            service_spec=service_spec)
 
 
@@ -178,17 +182,21 @@ def selected_service():
         org_name = request.form.get("org")
         service_name = request.form.get("service")
         method = request.form.get("method")
-        service_spec = get_service_info(org_name, service_name)
+
+        org_dict = update_organization_dict()
+        service_spec, agent_address, endpoint = get_service_info(org_dict, org_name, service_name)
         method_info = get_method_info(method, service_spec)
 
-        print("[selected_service] agent_address: ", mem.agent_address)
+        user_account = session.get("user_account", None)
+        print("[selected_service] user_account: ", user_account)
+        print("[selected_service] agent_address: ", agent_address)
         print("[selected_service] method_info: ", method_info)
 
         return render_template("selected_service.html",
-                               user_account=mem.user_account,
+                               user_account=user_account,
                                org_name=org_name,
                                service_name=service_name,
-                               agent_address=mem.agent_address,
+                               agent_address=agent_address,
                                method=method,
                                method_info=method_info)
     else:
@@ -206,7 +214,10 @@ def create_job():
                 param = k.replace("params#", "")
                 params[param] = v
         method = request.form.get("method")
-        service_spec = get_service_info(org_name, service_name)
+
+        org_dict = update_organization_dict()
+        service_spec, agent_address, endpoint = get_service_info(org_dict, org_name, service_name)
+
         method_info = get_method_info(method, service_spec)
         tmp_method_info = []
         for method_i in method_info:
@@ -216,15 +227,17 @@ def create_job():
         method_info = tmp_method_info
         create_job_version = randint(1234,1234567)
 
-        print("[create_job] agent_address: ", mem.agent_address)
+        user_account = session.get("user_account", None)
+        print("[create_job] user_account: ", user_account)
+        print("[create_job] agent_address: ", agent_address)
         print("[create_job] method_info: ", method_info)
 
         return render_template("createJob.html",
-                               user_account=mem.user_account,
+                               user_account=user_account,
                                create_job_version=create_job_version,
                                org_name=org_name,
                                service_name=service_name,
-                               agent_address=mem.agent_address,
+                               agent_address=agent_address,
                                method=method,
                                method_info=method_info)
     else:
@@ -242,7 +255,10 @@ def approve_tokens():
                 param = k.replace("params#", "")
                 params[param] = v
         method = request.form.get("method")
-        service_spec = get_service_info(org_name, service_name)
+
+        org_dict = update_organization_dict()
+        service_spec, agent_address, endpoint = get_service_info(org_dict, org_name, service_name)
+
         method_info = get_method_info(method, service_spec)
         tmp_method_info = []
         for method_i in method_info:
@@ -252,17 +268,22 @@ def approve_tokens():
         method_info = tmp_method_info
         approve_tokens_version = randint(1234, 1234567)
 
-        print("[approveTokens] agent_address: ", mem.agent_address)
+        receipt = session.get("receipt", None)
+        events = session.get("events", None)
+
+        user_account = session.get("user_account", None)
+        print("[approveTokens] user_account: ", user_account)
+        print("[approveTokens] agent_address: ", agent_address)
         print("[approveTokens] method_info: ", method_info)
 
         return render_template("approveTokens.html",
-                               user_account=mem.user_account,
+                               user_account=user_account,
                                approve_tokens_version=approve_tokens_version,
-                               receipt=mem.receipt,
-                               events=mem.events,
+                               receipt=receipt,
+                               events=events,
                                org_name=org_name,
                                service_name=service_name,
-                               agent_address=mem.agent_address,
+                               agent_address=agent_address,
                                method=method,
                                method_info=method_info)
     else:
@@ -280,7 +301,10 @@ def fund_job():
                 param = k.replace("params#", "")
                 params[param] = v
         method = request.form.get("method")
-        service_spec = get_service_info(org_name, service_name)
+
+        org_dict = update_organization_dict()
+        service_spec, agent_address, endpoint = get_service_info(org_dict, org_name, service_name)
+
         method_info = get_method_info(method, service_spec)
         tmp_method_info = []
         for method_i in method_info:
@@ -290,14 +314,19 @@ def fund_job():
         method_info = tmp_method_info
         fund_job_version = randint(1234, 1234567)
 
-        print("[fund_job] agent_address: ", mem.agent_address)
+        receipt = session.get("receipt", None)
+        events = session.get("events", None)
+
+        user_account = session.get("user_account", None)
+        print("[fund_job] user_account: ", user_account)
+        print("[fund_job] agent_address: ", agent_address)
         print("[fund_job] method_info: ", method_info)
 
         return render_template("fundJob.html",
-                               user_account=mem.user_account,
+                               user_account=user_account,
                                fund_job_version=fund_job_version,
-                               receipt=mem.receipt,
-                               events=mem.events,
+                               receipt=receipt,
+                               events=events,
                                org_name=org_name,
                                service_name=service_name,
                                agent_address=mem.agent_address,
@@ -318,7 +347,10 @@ def call_service():
                 param = k.replace("params#", "")
                 params[param] = v
         method = request.form.get("method")
-        service_spec = get_service_info(org_name, service_name)
+
+        org_dict = update_organization_dict()
+        service_spec, agent_address, endpoint = get_service_info(org_dict, org_name, service_name)
+
         method_info = get_method_info(method, service_spec)
         tmp_method_info = []
         for method_i in method_info:
@@ -328,17 +360,22 @@ def call_service():
         method_info = tmp_method_info
         call_service_version = randint(1234, 1234567)
 
-        print("[call_service] agent_address: ", mem.agent_address)
+        receipt = session.get("receipt", None)
+        events = session.get("events", None)
+
+        user_account = session.get("user_account", None)
+        print("[call_service] user_account: ", user_account)
+        print("[call_service] agent_address: ", agent_address)
         print("[call_service] method_info: ", method_info)
 
         return render_template("callService.html",
-                               user_account=mem.user_account,
+                               user_account=user_account,
                                call_service_version=call_service_version,
-                               receipt=mem.receipt,
-                               events=mem.events,
+                               receipt=receipt,
+                               events=events,
                                org_name=org_name,
                                service_name=service_name,
-                               agent_address=mem.agent_address,
+                               agent_address=agent_address,
                                method=method,
                                method_info=method_info)
     else:
@@ -356,7 +393,11 @@ def response():
                 param = k.replace("params#", "")
                 params[param] = v
         method = request.form.get("method")
-        service_spec = get_service_info(org_name, service_name)
+
+        org_dict = update_organization_dict()
+        spec_hash = get_spec_hash(org_dict, org_name, service_name)
+        service_spec, agent_address, endpoint = get_service_info(org_dict, org_name, service_name)
+
         method_info = get_method_info(method, service_spec)
         tmp_method_info = []
         for method_i in method_info:
@@ -368,26 +409,31 @@ def response():
         res = request.form
         service_response = None
         while not service_response:
-            print("agent_address: ", mem.agent_address)
-            print("job_address: ", mem.job_address)
-            print("job_signature: ", mem.job_signature)
-            print("method: ", method)
-            print("params: ", json.dumps(params))
+            user_account = session.get("user_account", None)
+            job_address = session.get("job_address", None)
+            job_signature = session.get("job_signature", None)
+
+            print("[response] user_account: ", user_account)
+            print("[response] agent_address: ", agent_address)
+            print("[response] job_address: ", job_address)
+            print("[response] job_signature: ", job_signature)
+            print("[response] method: ", method)
+            print("[response] params: ", json.dumps(params))
             try:
-                service_response = call_api(mem.job_address,
-                                            mem.job_signature,
-                                            mem.endpoint,
-                                            mem.spec_hash[0],
+                service_response = call_api(job_address,
+                                            job_signature,
+                                            endpoint,
+                                            spec_hash[0],
                                             method,
                                             json.dumps(params))
                 if service_response == -1:
                     raise Exception
             except Exception as e:
                 print(e)
-                service_response = call_api(mem.job_address,
-                                            mem.job_signature,
-                                            mem.endpoint,
-                                            mem.spec_hash[0],
+                service_response = call_api(job_address,
+                                            job_signature,
+                                            endpoint,
+                                            spec_hash[0],
                                             method,
                                             json.dumps(params))
                 break
@@ -396,10 +442,10 @@ def response():
             service_response = "<table class=\"table table-hover\">" + response_html(service_response) + "</table>"
 
         return render_template("response.html",
-                               user_account=mem.user_account,
+                               user_account=user_account,
                                org_name=org_name,
                                service_name=service_name,
-                               agent_address=mem.agent_address,
+                               agent_address=agent_address,
                                method=method,
                                method_info=method_info,
                                response=res,
@@ -408,73 +454,41 @@ def response():
         return index()
 
 
-# @app.route('/response', methods=['POST', 'GET'])
-# def response_static():
-#     if request.method == 'POST':
-#         org_name = request.form.get("org")
-#         service_name = request.form.get("service")
-#         method = request.form.get("method")
-#         params = {}
-#         for k, v in request.form.items():
-#             if "params#" in k:
-#                 param = k.replace("params#", "")
-#                 params[param] = v
-#         agent_address = get_agent_address(org_name, service_name)
-#         res = request.form
-#         service_response = None
-#         while not service_response:
-#             print("agent_address: ", agent_address)
-#             print("method: ", method)
-#             print("params: ", json.dumps(params))
-#             try:
-#                 service_response = call_service(agent_address, method, json.dumps(params))
-#             except Exception as e:
-#                 print(e)
-#                 service_response = call_service(agent_address, method, json.dumps(params))
-#                 break
-#         return render_template("response.html",
-#                                org_name=org_name,
-#                                service_name=service_name,
-#                                response=res,
-#                                service_response=service_response)
-
-
 @app.route('/get_user_account', methods=['POST'])
 def get_user_account():
+    session["user_account"] = ""
     if request.method == 'POST':
         print("============= GET ACCOUNT ================")
         for k, v in request.form.items():
             print(k, v)
             if k == "user_account":
-                mem.user_account = v
-        return index()
+                session["user_account"] = v
+    return ""
 
 
 @app.route('/get_receipt', methods=['POST'])
 def get_receipt():
     if request.method == 'POST':
         print("============= RECEIPT ================")
-        mem.receipt = {}
+        receipt = {}
         for k, v in request.form.items():
             k = k.replace("receipt", "").replace("[", "").replace("]", "")
             print(k, v)
-            mem.receipt[k] = v
-        return render_template("fundJob.html",
-                               events=mem.events,
-                               receipt=mem.receipt)
+            receipt[k] = v
+        session["receipt"] = receipt
+    return ""
 
 
 @app.route('/get_events', methods=['POST'])
 def get_events():
     if request.method == 'POST':
         print("============= EVENTS ================")
-        mem.events = {}
+        events = {}
         for k, v in request.form.items():
             print(k, v)
-            mem.events[k] = v
-        return render_template("fundJob.html",
-                               receipt=mem.receipt,
-                               events=mem.events)
+            events[k] = v
+        session["events"] = events
+    return ""
 
 
 @app.route('/get_signature', methods=['POST'])
@@ -484,13 +498,10 @@ def get_signature():
         for k, v in request.form.items():
             print(k, v)
             if k == "job_address":
-                mem.job_address = v
+                session["job_address"] = v
             if k == "job_signature":
-                mem.job_signature = v
-
-        return render_template("callService.html",
-                               events=mem.events,
-                               receipt=mem.receipt)
+                session["job_signature"] = v
+    return ""
 
 
 def main():

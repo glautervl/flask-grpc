@@ -142,21 +142,17 @@ def update_organization_dict():
         os.makedirs(mem.registry_folder)
 
     print("Getting JSON...")
-    found = False
+    org_dict = mem.organizations_dict
     for file in os.listdir(mem.registry_folder):
         filepath = mem.registry_folder.joinpath(file)
         if ".json" in file:
             if file != mem.services_json_file:
-                if mem.services_json_file != "":
-                    delete_filepath = mem.registry_folder.joinpath(mem.services_json_file)
-                    print("delete_filepath: ", delete_filepath)
-                    # os.remove(delete_filepath)
                 with open(filepath) as f:
-                    mem.organizations_dict = json.load(f)
+                    org_dict = json.load(f)
+                    mem.organizations_dict = org_dict
                     mem.services_json_file = file
-            found = True
             break
-    return found
+    return org_dict
 
 
 def call_api(job_address, job_signature, endpoint, spec_hash, method, params):
