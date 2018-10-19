@@ -159,16 +159,20 @@ def update_organization_dict():
 
 def call_api(job_address, job_signature, endpoint, spec_hash, method, params):
     print("Calling with call-cli...")
-    cmd = [sys.executable,
-           mem.call_cli,
-           job_address,
-           job_signature,
-           endpoint,
-           spec_hash,
-           method,
-           params]
-    response = subprocess.check_output(cmd, cwd=backend_path)
-    response = literal_eval(response.decode())
+    response = None
+    try:
+        cmd = [sys.executable,
+               mem.call_cli,
+               job_address,
+               job_signature,
+               endpoint,
+               spec_hash,
+               method,
+               params]
+        response = subprocess.check_output(cmd, cwd=backend_path)
+        response = literal_eval(response.decode())
+    except Exception as e:
+        print(e)
     return response
 
 

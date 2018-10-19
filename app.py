@@ -102,7 +102,7 @@ def response_html(content):
             if type(v) == dict:
                 ret += response_html(v)
             else:
-                if is_base64(str(v).encode()):
+                if is_base64(str(v).encode()) and len(str(v)) > 500:
                     ret += "<td class=\"col-md-6\"><img src=\"data:image/png;base64, " + str(v) + "\" /></td>"
                 else:
                     ret += "<td class=\"col-md-6\">" + str(v) + "</td>"
@@ -422,15 +422,30 @@ def response():
             print("[response] job_address: ", job_address)
             print("[response] job_signature: ", job_signature)
             print("[response] method: ", method)
-            print("[response] params: ", json.dumps(params))
+
+            # If Base64 images, creates a file with it.
+            # Sends the params equal to job_address.
+            if len(json.dumps(params)) > 500:
+                tmp_folder = app_folder.joinpath("backend").joinpath("tmp")
+                if not os.path.exists(tmp_folder):
+                    os.makedirs(tmp_folder)
+                file_path = tmp_folder.joinpath(job_address + ".txt")
+                with open(file_path, "w") as f:
+                    f.write(json.dumps(params))
+                params = job_address
+            else:
+                params = json.dumps(params)
+
+            print("[response] params: ", params)
+
             try:
                 service_response = call_api(job_address,
                                             job_signature,
                                             endpoint,
                                             spec_hash[0],
                                             method,
-                                            json.dumps(params))
-                if not service_name or service_response == -1:
+                                            params)
+                if not service_response or service_response == -1:
                     raise Exception
             except Exception as e:
                 print(e)
@@ -439,9 +454,10 @@ def response():
                                             endpoint,
                                             spec_hash[0],
                                             method,
-                                            json.dumps(params))
+                                            params)
                 break
 
+        print(service_response)
         if service_response != -1:
             service_response = "<table class=\"table table-hover\">" + response_html(service_response) + "</table>"
 
