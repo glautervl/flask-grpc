@@ -457,7 +457,6 @@ def response():
                                             params)
                 break
 
-        print(service_response)
         if service_response != -1:
             service_response = "<table class=\"table table-hover\">" + response_html(service_response) + "</table>"
 
