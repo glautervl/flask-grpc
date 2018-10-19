@@ -60,7 +60,7 @@ def get_proto_file(iblockchain):
         return response, metadata_uri, spec_hash
     except Exception as e:
         print(e)
-        return None
+        return [], None, ""
 
 
 def import_grpc_modules(spec_hash):
