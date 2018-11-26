@@ -9,10 +9,11 @@ from ast import literal_eval
 from pathlib import Path
 from configparser import ConfigParser, ExtendedInterpolation
 
-from snet_cli.utils import get_web3, get_agent_version
+from snet_cli.utils import get_web3
 from snet_cli.commands import BlockchainCommand
 
 from service_utils import call, call_daemon_static
+from wallet_utils import get_wallet
 
 
 conf = ConfigParser(interpolation=ExtendedInterpolation(), delimiters=("=",))
@@ -157,6 +158,10 @@ def update_organization_dict():
     return org_dict
 
 
+def get_wallet_by_mnemonic(mnemonic, index):
+    return get_wallet(mnemonic, int(index))
+
+
 def call_api(job_address, job_signature, endpoint, spec_hash, method, params):
     print("Calling with call-cli...")
     response = None
@@ -185,11 +190,6 @@ def call_service_static(agent_address, method, params):
     iblockchain.args.params = params
     response = call_daemon_static(iblockchain)
     return response.getvalue().strip()
-
-
-def get_agent_ver(agent_address):
-    w3 = get_web3("https://kovan.infura.io")
-    return get_agent_version(w3, agent_address)
 
 
 def main():

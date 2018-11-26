@@ -11,14 +11,14 @@ from pathlib import Path
 app_folder = Path(__file__).absolute().parent
 sys.path.append(str(app_folder.joinpath("backend")))
 
-from backend import mem, update_organization_dict, start_registry_cli, call_api
+from backend import mem, update_organization_dict, start_registry_cli, call_api, get_wallet_by_mnemonic
 
 
 # For protobuf
 os.environ["PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION"] = "python"
 
 app = Flask(__name__)
-app.config.from_object('config')
+app.config.from_object("config")
 
 
 def get_service_info(org_dict, target_org, target_service):
@@ -152,6 +152,21 @@ def reload():
                            org_json=org_dict,
                            len_orgs=len_orgs,
                            len_services=len_services)
+
+
+@app.route('/wallet', methods=['POST', 'GET'])
+def wallet():
+    user_wallet = {
+        "address": "Fail",
+        "private_key": "Fail"
+    }
+    if request.method == 'POST':
+        user_wallet = get_wallet_by_mnemonic(request.form.get("mnemonic"), request.form.get("index"))
+        print("[wallet] user_wallet: ", user_wallet)
+
+    return render_template("wallet.html",
+                           service_name="Wallet Generator",
+                           user_wallet=user_wallet)
 
 
 @app.route('/service')
