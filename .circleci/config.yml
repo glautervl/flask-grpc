@@ -22,7 +22,7 @@ commands:
           name: Prepare command
           command: |
             ssh -o "StrictHostKeyChecking no" ${SSH_USER_BR}@${SSH_HOST_BR} \<< EOF
-              bash -c "sleep 5;pwd"
+              bash -c "sleep 7;pwd"
             EOF
       - run:
           name: Run command
