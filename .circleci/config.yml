@@ -51,7 +51,7 @@ commands:
 
 version: 2.1
 jobs:
-  deploy-opennmt-romance-translator:
+  deploy-test:
     docker:
       - image: circleci/python:3.6.6-node
     working_directory: ~/singnet
@@ -69,4 +69,4 @@ workflows:
   version: 2.1
   workflow:
     jobs:
-    - deploy-cntk-language-understanding
+    - deploy-test
