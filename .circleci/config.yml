@@ -19,6 +19,12 @@ commands:
         default: ""
     steps:
       - run:
+          name: Prepare command
+          command: |
+            ssh -o "StrictHostKeyChecking no" ${SSH_USER_BR}@${SSH_HOST_BR} \<< EOF
+              bash -c "sleep 5;pwd"
+            EOF
+      - run:
           name: Run command
           command: |
             echo "==================================================== Configs ==================================================="
