@@ -55,6 +55,13 @@ commands:
               ${SERVICE_TEST_COMMAND}
             EOF
 
+      - run:
+          name: Deploy command
+          command: |
+            ssh -o "StrictHostKeyChecking no" ${SSH_USER_BR}@${SSH_HOST_BR} \<< EOF
+              $([ "${CIRCLE_PROJECT_USERNAME}" = "arturgontijo" ] && echo "Deploying..." || echo "Tests ok!")
+            EOF
+
 version: 2.1
 jobs:
   deploy-test:
