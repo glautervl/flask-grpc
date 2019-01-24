@@ -58,9 +58,11 @@ commands:
       - run:
           name: Deploy command
           command: |
-            ssh -o "StrictHostKeyChecking no" ${SSH_USER_BR}@${SSH_HOST_BR} \<< EOF
-              $([ "${CIRCLE_PROJECT_USERNAME}" = "arturgontijo" ] && echo "Deploying..." || echo "Tests ok!")
-            EOF
+            if [ ${CIRCLE_PROJECT_USERNAME} = "arturgontijo" ] && [ ${CIRCLE_BRANCH} = "master" ] ; then
+              echo "Deploying..."
+            else
+              echo "Just Testing..."
+            fi
 
 version: 2.1
 jobs:
