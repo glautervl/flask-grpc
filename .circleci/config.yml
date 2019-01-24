@@ -55,6 +55,15 @@ commands:
               ${SERVICE_TEST_COMMAND}
             EOF
 
+      - run:
+          name: Deploy command
+          command: |
+            if [ ${CIRCLE_PROJECT_USERNAME} = "arturgontijo" ] && [ ${CIRCLE_BRANCH} = "master" ] ; then
+              echo "Deploying..."
+            else
+              echo "Just Testing..."
+            fi
+
 version: 2.1
 jobs:
   deploy-test:
